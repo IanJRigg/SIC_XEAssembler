@@ -6,6 +6,7 @@
 #define FILE_PARSER_H
 
 #include <string>
+#include <cstd
 
 using namespace std;
 
@@ -24,7 +25,23 @@ class file_parser {
         // Throws a file_parse_exception if an error occurs.
         // if the source code file fails to conform to the above
         // specification, this is an error condition.     
-        void read_file();    
+        void read_file(string filename){
+			ifstream infile = filename;
+			ofstream outfile;
+			vector<string> contents;
+			string line;
+			
+			infile.open(infile, ios::in);
+			if(!infile)
+			cout<< "Error file not found!" <<endl;
+			
+			while(!infile.eof()){
+				getline(infile,line);
+				contents.push_back(line);
+			}
+			infile.close();
+			
+		}    
         
         // returns the token found at (row, column).  Rows and columns
         // are zero based.  Returns the empty string "" if there is no 
