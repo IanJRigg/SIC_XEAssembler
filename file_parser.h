@@ -55,6 +55,7 @@ class file_parser {
 		private:
         // your variables and private methods go here
 		vector<line> file_line;
+		string in_file_name;
 
 };
 
