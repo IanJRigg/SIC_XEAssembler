@@ -35,7 +35,7 @@ class file_parser {
         // Throws a file_parse_exception if an error occurs.
         // if the source code file fails to conform to the above
         // specification, this is an error condition.     
-        void read_file(string filename);
+        void read_file();
         
         // returns the token found at (row, column).  Rows and columns
         // are zero based.  Returns the empty string "" if there is no 
