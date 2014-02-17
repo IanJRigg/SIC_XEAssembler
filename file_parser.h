@@ -40,17 +40,17 @@ class file_parser {
         // the exact formatting of the original, but uses tabs to align
         // similar tokens in a column. The fields should match the 
         // order of token fields given above (label/opcode/operands/comments)
-		void print_file();
+	void print_file();
         
         // returns the number of lines in the source code file
         int size();
         
-		private:
+    private:
         // your variables and private methods go here
-        	struct line;
-        	typedef struct line line;
-			vector<line> file_line;
-			string in_file_name;
+        struct line;
+        typedef struct line line;
+	vector<line> file_line;
+	string in_file_name;
 
 };
 
