@@ -10,5 +10,13 @@
 
 using namespace std;
 
+file_parser::file_parser(string s) {
+	file_name = s;
+}
+
+
+file_parser::read_file() {
+	
+}
 
 
