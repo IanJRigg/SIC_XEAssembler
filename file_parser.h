@@ -59,6 +59,10 @@ class file_parser {
         typedef struct line line;
 	    vector<line> file_line;
 	    string in_file_name;
+		string parsed_line;
+		string::iterator string_iter;
+		
+		line parse_tokens(struct, string);
 
 };
 
