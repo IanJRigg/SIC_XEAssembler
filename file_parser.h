@@ -12,13 +12,6 @@
 
 using namespace std;
 
-struct line{
-	string label;
-	string opcode;
-	string operand;
-	string comments;
-};
-
 
 class file_parser {
     public:
@@ -54,6 +47,8 @@ class file_parser {
         
 		private:
         // your variables and private methods go here
+        	struct line;
+        	typedef struct line line;
 		vector<line> file_line;
 		string in_file_name;
 
