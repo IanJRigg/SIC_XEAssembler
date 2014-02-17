@@ -6,8 +6,12 @@
 #define FILE_PARSER_H
 
 #include <string>
+#include <cstdlib>
+#include <vector>
+#include <iostream>
 
 using namespace std;
+
 
 class file_parser {
     public:
@@ -24,7 +28,7 @@ class file_parser {
         // Throws a file_parse_exception if an error occurs.
         // if the source code file fails to conform to the above
         // specification, this is an error condition.     
-        void read_file();    
+        void read_file();
         
         // returns the token found at (row, column).  Rows and columns
         // are zero based.  Returns the empty string "" if there is no 
@@ -43,6 +47,10 @@ class file_parser {
         
 		private:
         // your variables and private methods go here
+        	struct line;
+        	typedef struct line line;
+		vector<line> file_line;
+		string in_file_name;
 
 };
 
