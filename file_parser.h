@@ -6,9 +6,19 @@
 #define FILE_PARSER_H
 
 #include <string>
-#include <cstd
+#include <cstdlib>
+#include <vector>
+#include <iostream>
 
 using namespace std;
+
+struct line{
+	string label;
+	string opcode;
+	string operand;
+	string comments;
+};
+
 
 class file_parser {
     public:
@@ -25,23 +35,7 @@ class file_parser {
         // Throws a file_parse_exception if an error occurs.
         // if the source code file fails to conform to the above
         // specification, this is an error condition.     
-        void read_file(string filename){
-			ifstream infile = filename;
-			ofstream outfile;
-			vector<string> contents;
-			string line;
-			
-			infile.open(infile, ios::in);
-			if(!infile)
-			cout<< "Error file not found!" <<endl;
-			
-			while(!infile.eof()){
-				getline(infile,line);
-				contents.push_back(line);
-			}
-			infile.close();
-			
-		}    
+        void read_file(string filename);
         
         // returns the token found at (row, column).  Rows and columns
         // are zero based.  Returns the empty string "" if there is no 
@@ -60,6 +54,7 @@ class file_parser {
         
 		private:
         // your variables and private methods go here
+		vector<line> file_line;
 
 };
 
