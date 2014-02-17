@@ -49,8 +49,8 @@ class file_parser {
         // your variables and private methods go here
         	struct line;
         	typedef struct line line;
-		vector<line> file_line;
-		string in_file_name;
+			vector<line> file_line;
+			string in_file_name;
 
 };
 
