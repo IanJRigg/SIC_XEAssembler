@@ -1,0 +1,45 @@
+int index, currIndex = 0;
+
+for(int i = 0; i < 4; i++)
+	find_next_anum(line, &index);
+	currIndex = index;
+	switch(i){
+		case(0):
+			if(index==currentIndex)
+				if(line[currentIndex] == '.')
+					label = ""
+					opcode = ""
+					operand = ""
+					coment = line;
+					i = 4; 	// break the loop
+				else
+					find_next_whiteSpace(line, &currentIndex);
+					label = substring(index, currIndex);
+			else
+				label = ""
+		case(1):
+			if(line[currentIndex] == '.')
+				opcode = ""
+				operand = ""
+				coment = substring from line
+				i = 4; 	// break the loop
+			else
+				find_next_whiteSpace(line, &currentIndex);
+				opcode = substring(index, currIndex);
+		case(2):
+			if(line[currentIndex] == '.')
+				operand = ""
+				coment = substring from line
+				i = 4; 	// break the loop
+			else
+				find_next_whiteSpace(line, &currentIndex);
+				operand = substring(index, currIndex);
+		case(3):
+			if(line[currentIndex] == '.')
+				coment = substring from line
+				i = 4; 	// break the loop
+			else
+				throw file_parse_esception;	
+		default():
+			throw file_parse_exception;
+	}
