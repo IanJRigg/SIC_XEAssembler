@@ -11,12 +11,6 @@
 #include <iostream>
 
 using namespace std;
-struct line{
-    string label;
-	string opcode;
-	string operand;
-	string comments;
-}
 
 class file_parser {
     public:
@@ -55,10 +49,19 @@ class file_parser {
         string file_name;
 		ifstream in;
 		ofstream out;
-		struct line;
-        typedef struct line line;
+		struct line{
+			string label;
+			string opcode;
+			string operand;
+			string comments;
+		}
+        typedef line;
 	    vector<line> file_line;
 	    string in_file_name;
+		string parsed_line;
+		//string::iterator string_iter;
+		
+		struct parse_tokens(string);
 
 };
 
