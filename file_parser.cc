@@ -13,9 +13,7 @@ file_parser::file_parser(string file_name) {
 }
 
 //destructor
-//<COMMENT TO BE REMOVED> Removed casting of class methods, unnecessary in .cc since handled by .h
 file_parser::~file_parser() {
-
 }
 
 file_parser::read_file() {
@@ -30,8 +28,18 @@ file_parser::read_file() {
 	in.close();
 }
 
-file_parser::parse_tokens(line fline, string parsed_line_string) {
-	if(parsed_line_string[0] == ' ') //check syntax here for checking column 0
+file_parser::parse_tokens(string parsed_line_string) {
+	line.label = "label";
+	line.opcode = "opcode";
+	line.operand = "operand";
+	line.comment = "comment";
+	return fline;
+	// int i = 0;
+	// while(parsed_line_string[i] != endl){
+		// if(parsed_line_string[0] == " ") 
+			// fline.label = " ";
+		// i++;
+	// }	
 }
 
 file_parser::get_token(unsigned int line, unsigned int col) {
@@ -46,5 +54,3 @@ file_parser::size() {
 //returns the number of lines in the file
 	return file_line.size();
 }
-
-
