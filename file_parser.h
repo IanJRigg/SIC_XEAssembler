@@ -47,8 +47,8 @@ class file_parser {
         
     private:
         // your variables and private methods go here
-        string in_file_name;
-	ifstream infile;
+        string *in_file_name;
+	std::ifstream infile;
 	ofstream outfile;
 	struct parsed_line{
 			string label;

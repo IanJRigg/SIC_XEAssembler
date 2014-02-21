@@ -6,7 +6,7 @@
 
 #ifndef FILE_PARSE_EXCEPTION_H
 #define FILE_PARSE_EXCEPTION_H
-//#include 
+#include <string> 
 
 using namespace std;
 

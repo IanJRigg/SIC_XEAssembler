@@ -15,7 +15,7 @@ using namespace std;
 //constructor
 file_parser::file_parser(string file_name) {
 	in_file_name = file_name;
-	file_parser::set_operand_set(0);
+	set_operand_set(0);
 	opcode_set = 0;
 	start = 0;
 }
@@ -26,7 +26,8 @@ file_parser::~file_parser() {
 
 void file_parser::read_file() {
 //parsing code and storage into vector<struct>
-	
+	//ifstream infile = new ifstream();
+	infile.open(in_file_name.c_str(), ios::in);
 	if (!infile) {
 		throw file_parse_exception("Error opening source code file.");
 	}
