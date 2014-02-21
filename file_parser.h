@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -46,23 +47,28 @@ class file_parser {
         
     private:
         // your variables and private methods go here
-        string file_name;
-		ifstream in;
-		ofstream out;
-		struct line{
+        string in_file_name;
+	ifstream infile;
+	ofstream outfile;
+	struct parsed_line{
 			string label;
 			string opcode;
 			string operand;
-			string comments;
-		}
-        typedef line;
-	    vector<line> file_line;
-	    string in_file_name;
-		string parsed_line;
-		//string::iterator string_iter;
-		
-		struct parse_tokens(string);
+			string comment;
+			parsed_line():  label(""),
+							opcode(""),
+							operand(""),
+							comment(""){}
+		};
+	string line;
+	int i, index, currIndex, v_counter;
+	int operand_set;
+	int opcode_set;
+	int start;
+	vector<parsed_line> contents;
+	vector<parsed_line>::iterator v_iter;
 
+	void set_operand_set(int);
 };
 
 #endif  
