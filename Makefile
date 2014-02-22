@@ -1,4 +1,9 @@
 #Makefile
+#Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
+#masc1258
+#prog1 : Makefile
+#CS530, Spring 2014
+
 TORM = file_parser.o driver.o driver
 CC = g++
 CCFLAGS = -g -O3 -Wall -Wcast-qual -Wpointer-arith -Wwrite-strings
