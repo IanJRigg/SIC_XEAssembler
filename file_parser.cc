@@ -1,4 +1,7 @@
-/*  file_parser.cc
+/*  
+    Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
+    masc1258
+    prog1 : file_parser.cc
     CS530, Spring 2014
 */
 
@@ -40,18 +43,18 @@ void file_parser::read_file() {
         start =0;
         contents.push_back(parsed_line());
         for(unsigned int i=0; i< line.size();i++){
-            if(line[i] == '.'){
+            if(line[i] == '.'){						//Find comments if they exist alone
                 contents[v_counter].comment = line.substr(i,line.size()-i+1);
                 break;
             }
-            if((!isspace(line[i])) && (i==0)){
+            if((!isspace(line[i])) && (i==0)){				//Check if there is a label
                 while(!isspace(line[i])){
                     i++;
                     }
                 contents[v_counter].label= line.substr(0,i);
                 continue;
             }
-            if((!isspace(line[i]))&&(!opcode_set)){
+            if((!isspace(line[i]))&&(!opcode_set)){			//Check for an opcode
                 start = i;
                 while(!isspace(line[i])){
                 i++;
@@ -60,7 +63,7 @@ void file_parser::read_file() {
                 opcode_set =1;
                 continue;
             }
-            if((!isspace(line[i]))&&(opcode_set)&&(!operand_set)){
+            if((!isspace(line[i]))&&(opcode_set)&&(!operand_set)){	//check for an operand
                 start = i;
                 while(!isspace(line[i])){
                 i++;
@@ -69,11 +72,11 @@ void file_parser::read_file() {
                 operand_set =1;
                 continue;
             }
-            if(isspace(line[i])){
+            if(isspace(line[i])){					// Advance if nothing found
                 continue;
             }
             //Need to code this to throw exception
-            if((line[i]!='.')&&(!isspace(line[i]))){
+            if((line[i]!='.')&&(!isspace(line[i]))){			//Check for a fourth, non-comment token
                 cout<<"Error with "<<line.substr(i,10)<<endl;
                 break;
             }
