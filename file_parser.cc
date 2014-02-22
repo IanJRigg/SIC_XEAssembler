@@ -35,12 +35,12 @@ void file_parser::read_file() {
 	while (!infile.eof()) {
         getline(infile, line);
 	set_operand_set(0);
-        //operand_set=0;
         opcode_set=0;
         start =0;
+	stringstream ss;
         contents.push_back(parsed_line());
         for(unsigned int i=0; i< line.size();i++){
-            if(line[i] == '.'){
+	    if(line[i] == '.'){
                 contents[v_counter].comment = line.substr(i,line.size()-i+1);
                 break;
             }
@@ -74,7 +74,7 @@ void file_parser::read_file() {
             }
             //Need to code this to throw exception
             if((line[i]!='.')&&(!isspace(line[i]))){
-                cout<<"Error with "<<line.substr(i,10)<<endl;
+	    	cout/*ss*/<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<" 'Too Many Tokens'";
                 break;
             }
 
