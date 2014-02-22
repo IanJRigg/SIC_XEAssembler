@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -50,7 +51,7 @@ class file_parser {
         
     private:
         // your variables and private methods go here
-        string *in_file_name;
+        string in_file_name;
 	std::ifstream infile;
 	ofstream outfile;
 	struct parsed_line{
@@ -67,11 +68,12 @@ class file_parser {
 	int i, index, currIndex, v_counter;
 	int operand_set;
 	int opcode_set;
-	int start;
 	vector<parsed_line> contents;
 	vector<parsed_line>::iterator v_iter;
 
 	void set_operand_set(int);
+	void set_opcode_set(int);
+	void set_default_values();
 };
 
 #endif  
