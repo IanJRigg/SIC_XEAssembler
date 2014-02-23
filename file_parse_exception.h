@@ -1,9 +1,9 @@
-/*  file_parse_exception.h
-    Exception class for file_parser
-    CS530 Spring 2014
-    Alan Riggins
-*/    
-
+/*  
+    Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
+    masc1258
+    prog1 : file_parse_exception.h
+    CS530, Spring 2014
+*/
 #ifndef FILE_PARSE_EXCEPTION_H
 #define FILE_PARSE_EXCEPTION_H
 #include <string> 
