@@ -1,9 +1,10 @@
-#Makefile
-#Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
-#masc1258
-#prog1 : Makefile
-#CS530, Spring 2014
+#Ian Rigg, Richard Valles, Chris Andaya, Arron McCarter\
+masc1258\
+prog 1: makefile\
+CS530, Spring 2014\
+Team Florida\
 
+#Makefile
 TORM = file_parser.o driver.o driver
 CC = g++
 CCFLAGS = -g -O3 -Wall -Wcast-qual -Wpointer-arith -Wwrite-strings
@@ -17,5 +18,6 @@ driver.o:	driver.cpp
 fileparser.o:	file_parser.cc file_parser.h file_parse.exception.h
 				${CC} ${CCFLAGS} -c file_parser.cc
 				
-clean:	rm -f ${TORM}
+clean:	
+	rm -f ${TORM}
 #End Makefile

@@ -12,7 +12,7 @@ using namespace std;
 
 //constructor
 file_parser::file_parser(string file_name) {
-	in_file_name = file_name;
+    in_file_name = file_name;
     v_counter=0;
 }
 
@@ -22,12 +22,12 @@ file_parser::~file_parser() {
 
 void file_parser::read_file() {
 //parsing code and storage into vector<struct>
-	infile.open(in_file_name.c_str(), std::ifstream::in);
-	if (!infile) {
-		throw file_parse_exception("source code file does not exist.");
-	}
+    infile.open(in_file_name.c_str(), std::ifstream::in);
+    if (!infile) {
+    	throw file_parse_exception("source code file does not exist.");
+    }
 	
-	while (!infile.eof()) {
+    while (!infile.eof()) {
         getline(infile, line);
         int operand_set=0;
         int opcode_set=0;
@@ -44,8 +44,11 @@ void file_parser::read_file() {
 		    throw_error(" 'Labels cannot start with a number'",ss_error);
 		}
                 while(!isspace(line[i])){
-                    i++;
-                    }
+		    if(!isalnum(line[i])&&line[i]!=0){
+		        throw_error(" 'Labels can only contain letters and numbers'",ss_error);
+		    }
+		    i++;
+		}
                 insert_to_vector("label",contents,v_counter,line,0,i,ss);
                 continue;
             }
@@ -84,38 +87,38 @@ void file_parser::read_file() {
 
 string file_parser::get_token(unsigned int r, unsigned int c) {
 //gets the token located at
-	unsigned int column = c;
-	unsigned int row = r;
-	string token;
-        //Prevents possible segmentation fault if wrong row selected
-        if(contents.size()<row){
-            stringstream ss_error;
-            ss_error<<"no such row: "<<row<<" in file "<<in_file_name;
-            throw file_parse_exception( ss_error.str());
-        }
+    unsigned int column = c;
+    unsigned int row = r;
+    string token;
+    //Prevents possible segmentation fault if wrong row selected
+    if(contents.size()<row){
+        stringstream ss_error;
+        ss_error<<"no such row: "<<row<<" in file "<<in_file_name;
+        throw file_parse_exception( ss_error.str());
+    }
 
-	switch (column) {
-		case 0:
-			return contents[row].label;
-		case 1:
-			return contents[row].opcode;
-		case 2:
-			return contents[row].operand;
-		case 3:
-			return contents[row].comment;
-		default:
-			return "";
-	}
+    switch (column) {
+    	case 0:
+		return contents[row].label;
+	case 1:
+		return contents[row].opcode;
+	case 2:
+		return contents[row].operand;
+	case 3:
+		return contents[row].comment;
+	default:
+		return "";
+    }
 }
 
 void file_parser::print_file() {
 //prints the input file in proper format
-	for (int i = 0; i < v_counter; i++) {
-		cout << contents[i].label << "\t";
-		cout << contents[i].opcode << "\t";
-		cout << contents[i].operand << "\t";
-		cout << contents[i].comment << endl;
-	}
+    for (int i = 0; i < v_counter; i++) {
+	cout << contents[i].label << "\t";
+	cout << contents[i].opcode << "\t";
+	cout << contents[i].operand << "\t";
+	cout << contents[i].comment << endl;
+    }
 }
 
 int file_parser::size() {
@@ -132,17 +135,17 @@ void file_parser::insert_to_vector(string location,vector<parsed_line>& contents
 			int i,string& line, int start,int end,stringstream& stream){
     stream<<line.substr(start,end)<<'\0';
     if(location.compare("comment")==0){ 
-                contents[i].comment = stream.str();
-	        }
+        contents[i].comment = stream.str();
+    }
     else if(location.compare("label")==0){
-                contents[i].label = stream.str();
-	        }
+        contents[i].label = stream.str();
+    }
     else if(location.compare("opcode")==0){  
-                contents[i].opcode = stream.str();
-		}
+        contents[i].opcode = stream.str();
+    }   
     else if(location.compare("operand")==0){ 
-                contents[i].operand = stream.str();
-		}
+        contents[i].operand = stream.str();
+    }
     else
         throw file_parse_exception("with insert_to_vector function, no such column");
     stream.str(""); 
