@@ -29,11 +29,11 @@ void file_parser::read_file() {
 	
     while (!infile.eof()) {
         getline(infile, line);
-        int operand_set=0;
-        int opcode_set=0;
-        int had_single_quote=0;
+        int operand_set=0; //Checks if operand has been tokenized
+        int opcode_set=0; //Checks if opcode has been tokenized
+        int had_single_quote=0; //Checks if a single quote has been processed
         stringstream ss,ss_error;
-        contents.push_back(parsed_line());
+        contents.push_back(parsed_line()); //Creates each row
         for(unsigned int i=0; i< line.size();i++){
 	    if(is_comment(line,i)){
                insert_to_vector("comment",contents,v_counter,line,i,line.size()-i,ss);
@@ -44,10 +44,15 @@ void file_parser::read_file() {
 		    throw_error(" 'Labels cannot start with a number'",ss_error);
 		}
                 while(!isspace(line[i])){
+		    //Check to make sure contents are only alphanumeric or the null character
 		    if(!isalnum(line[i])&&line[i]!=0){
 		        throw_error(" 'Labels can only contain letters and numbers'",ss_error);
 		    }
 		    i++;
+		}
+		if(i>8){
+		    insert_to_vector("label",contents,v_counter,line,0,8,ss);
+		    continue;
 		}
                 insert_to_vector("label",contents,v_counter,line,0,i,ss);
                 continue;
