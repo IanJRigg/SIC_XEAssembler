@@ -1,3 +1,7 @@
+/*  opcodetab.h
+    CS530, Spring 2014
+*/
+
 #ifndef OPCODETAB_H
 #define OPCODETAB_H
 
