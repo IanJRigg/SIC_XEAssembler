@@ -60,20 +60,23 @@ class file_parser {
 			string operand;
 			string comment;
 			parsed_line():  label(""),
-							opcode(""),
-							operand(""),
-							comment(""){}
+					opcode(""),
+					operand(""),
+					comment(""){}
 		};
 	string line;
-	int i, index, currIndex, v_counter;
-	int operand_set;
-	int opcode_set;
+	int v_counter;
 	vector<parsed_line> contents;
-	vector<parsed_line>::iterator v_iter;
+    
+	void insert_to_vector(string ,vector<parsed_line>& ,
+                int ,string&, int, int ,stringstream&);
+	void throw_error(string, stringstream&);
+	int is_comment(string, int);
+ 	int is_opcode(string,int,int);
+ 	int is_operand(string,int,int,int);
+ 	int is_label(string, int);
+ 	int has_too_many_tokens(string,int);
 
-	void set_operand_set(int);
-	void set_opcode_set(int);
-	void set_default_values();
 };
 
 #endif  
