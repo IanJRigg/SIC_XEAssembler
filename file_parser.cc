@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    prog1 : file_parser.cc
+    file_parser.cc
     CS530, Spring 2014
 */
 
@@ -13,7 +13,7 @@ using namespace std;
 //constructor
 file_parser::file_parser(string file_name) {
 	in_file_name = file_name;
-	set_default_values();
+    v_counter=0;
 }
 
 //destructor
@@ -29,44 +29,36 @@ void file_parser::read_file() {
 	
 	while (!infile.eof()) {
         getline(infile, line);
-	set_operand_set(0);
-        set_opcode_set(0);
-		int had_single_quote=0;
-		stringstream ss_comment,ss_opcode,ss_operand,ss_label,ss_error;
+        int operand_set=0;
+        int opcode_set=0;
+        int had_single_quote=0;
+        stringstream ss,ss_error;
         contents.push_back(parsed_line());
         for(unsigned int i=0; i< line.size();i++){
-            if(line[i] == '.'){
-                //Want to add method to handle each case cleanly
-                ss_comment<<line.substr(i,line.size()-i)<<'\0';
-                contents[v_counter].comment = ss_comment.str();
-                ss_comment.str("");
+	    if(is_comment(line,i)){
+               insert_to_vector("comment",contents,v_counter,line,i,line.size()-i,ss);
                 break;
             }
-            if((!isspace(line[i])) && (i==0)){				//Check if there is a label
-                if(!isalpha(line[i])){
-  		            ss_error<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<" 'Labels cannot start with a number'";
-                    throw file_parse_exception(ss_error.str());
-  				}
-				while(!isspace(line[i])){
+            if(is_label(line,i)){
+	    	if(!isalpha(line[i])){
+		    throw_error(" 'Labels cannot start with a number'",ss_error);
+		}
+                while(!isspace(line[i])){
                     i++;
                     }
-                ss_label<<line.substr(0,i)<<'\0';
-                contents[v_counter].label= ss_label.str();
-                ss_label.str("");
+                insert_to_vector("label",contents,v_counter,line,0,i,ss);
                 continue;
             }
-            if((!isspace(line[i]))&&(!opcode_set)){			//Check for an opcode
+            if(is_opcode(line,i,opcode_set)){
                 int start = i;
                 while(!isspace(line[i])){
                 i++;
                 }
-                ss_opcode<<line.substr(start,i-start)<<'\0';
-                contents[v_counter].opcode=ss_opcode.str();
-                set_opcode_set(1);
-                ss_opcode.str("");
+                insert_to_vector("opcode",contents,v_counter,line,start,i-start,ss);
+                opcode_set=1;
                 continue;
             }
-            if((!isspace(line[i]))&&(opcode_set)&&(!operand_set)){	//check for an operand
+            if(is_operand(line,i,opcode_set,operand_set)){
                 int start = i;
                 while(!isspace(line[i])||(had_single_quote==1)){
                     if(line[i]=='\''){
@@ -74,19 +66,15 @@ void file_parser::read_file() {
                     }
                 i++;
                 }
-                ss_operand<<line.substr(start,i-start)<<'\0';
-                contents[v_counter].operand=ss_operand.str();
-                set_operand_set(1);
-                ss_operand.str("");
+                insert_to_vector("operand",contents,v_counter,line,start,i-start,ss);
+                operand_set=1;
                 continue;
             }
-            if(isspace(line[i])){					// Advance if nothing found
+            if(isspace(line[i])){
                 continue;
             }
-            //Need to code this to throw exception
-            if((line[i]!='.')&&(!isspace(line[i]))){			//Check for a fourth, non-comment token
-                ss_error<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<" 'Too Many Tokens'";
-                throw file_parse_exception(ss_error.str());
+            if(has_too_many_tokens(line,i)){
+	    	throw_error(" 'Too Many Tokens'",ss_error);
             }
         }
         v_counter++;
@@ -99,12 +87,13 @@ string file_parser::get_token(unsigned int r, unsigned int c) {
 	unsigned int column = c;
 	unsigned int row = r;
 	string token;
-	//Wrote this to prevent possible segmentation fault if wrong row selected
+        //Prevents possible segmentation fault if wrong row selected
         if(contents.size()<row){
             stringstream ss_error;
             ss_error<<"no such row: "<<row<<" in file "<<in_file_name;
             throw file_parse_exception( ss_error.str());
         }
+
 	switch (column) {
 		case 0:
 			return contents[row].label;
@@ -134,15 +123,74 @@ int file_parser::size() {
     return contents.size();
 }
 
-void file_parser::set_operand_set(int a) {
-   operand_set = a;
-}
+//Takes in a column location name, vector, vector row number, string to parse
+//starting parse location, ending parse location, and stringstream variable
+//Checks location and inputs into corresponding struct variable
+//throws an error if location does not exist
+//clears the stream
+void file_parser::insert_to_vector(string location,vector<parsed_line>& contents,
+			int i,string& line, int start,int end,stringstream& stream){
+    stream<<line.substr(start,end)<<'\0';
+    if(location.compare("comment")==0){ 
+                contents[i].comment = stream.str();
+	        }
+    else if(location.compare("label")==0){
+                contents[i].label = stream.str();
+	        }
+    else if(location.compare("opcode")==0){  
+                contents[i].opcode = stream.str();
+		}
+    else if(location.compare("operand")==0){ 
+                contents[i].operand = stream.str();
+		}
+    else
+        throw file_parse_exception("with insert_to_vector function, no such column");
+    stream.str(""); 
+ } 
+ 
+ //Creates and throws a file_parse_exception
+ void file_parser::throw_error(string error, stringstream& stream){
+    stream<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<error;
+    throw file_parse_exception(stream.str());
+ }
+ 
+ //Checks if character is start of a comment
+ int file_parser::is_comment(string line, int i){
+    if(line[i] == '.'){
+        return 1;
+    }
+    return 0;
+ }
+ 
+ //Checks if character should be an opcode
+ int file_parser::is_opcode(string line, int i, int opcode_set){
+    if((!isspace(line[i]))&&(!opcode_set)){
+        return 1;
+    }
+    return 0;
+ }
+ 
+ //Checks if character should be an operand
+ int file_parser::is_operand(string line,int i,int opcode_set,int operand_set){
+    if((!isspace(line[i]))&&(opcode_set)&&(!operand_set)){
+        return 1;
+    }
+    return 0;
+ }
+ 
+ //Checks if character is start of a label
+ int file_parser::is_label(string line, int i){
+    if((!isspace(line[i])) && (i==0)){
+        return 1;
+    }
+    return 0;
+ }
+ 
+ //Checks if the line has too many tokens
+ int file_parser::has_too_many_tokens(string line, int i){
+    if((!is_comment(line,i))&&(!isspace(line[i]))){
+        return 1;
+    }
+    return 0;
+ }
 
-void file_parser::set_opcode_set(int a) {
-    opcode_set = a;
-}
-
-void file_parser::set_default_values(){
-    operand_set=0;
-    opcode_set=0;
-}
