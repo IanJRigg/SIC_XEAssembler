@@ -5,6 +5,9 @@
     CS530, Spring 2014
 */
 
+#include <map>
+#include <string>
+#include <iostream>
 #include "opcodetab.h"
 #include "opcode_error_exception.h"
 
@@ -36,20 +39,17 @@ opcodetab::opcodetab() {
 				"3", "3", "3", "3", "3", "3", "3", "2", "2", "3", "1", "3", 
 				"2", "3" };
 			
-	//need to fix for loop		
 	for(int i = 0; i < 59; i++) {
-		if(opcode_exists[codes[i] ]) {
-			opcode_map[codes[i] ] = 
-		}
-	}
+		opcode_map.insert(std::make_pair(codes[i], std::make_pair(hex_codes[i], format[i])));
+	}	
 }
 
 string opcodetab::get_machine_code(string s) {
-
+	
 }
 
 int opcodetab::get_instruction_size(string s) {
-
+	return 1;
 }
 
 bool opcodetab::opcode_exists(string s) {
