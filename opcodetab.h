@@ -1,5 +1,5 @@
-/*  
-    Ian Rigg, Richard Valles, Chris Andaya, Arron McCarter
+/*
+    Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
     opcodetab.h
     CS530, Spring 2014
@@ -7,6 +7,11 @@
 
 #ifndef OPCODETAB_H
 #define OPCODETAB_H
+
+#include <string>
+#include <cstdlib>
+#include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -35,7 +40,13 @@ class opcodetab {
                         
     private:
         // your variables and private methods go here
-
+	static string codes[59];
+	static string hex_codes[59];
+	static string format[59];
+	map<string, pair<string, string> > opcode_map;
+	map<string, pair<string, string> >::iterator m_iter;
+	
+	bool opcode_exists(string);
 };
 
 #endif

@@ -5,11 +5,11 @@ CS530, Spring 2014\
 Team Florida\
 
 #Makefile
-TORM = file_parser.o driver.o driver
+TORM = file_parser.o driver.o opcodetab.o driver
 CC = g++
 CCFLAGS = -g -O3 -Wall -Wcast-qual -Wpointer-arith -Wwrite-strings
 
-driver:	driver.o file_parser.o
+driver:	driver.o file_parser.o opcodetab.o
 		${CC} ${CCFLAGS} -o driver driver.o file_parser.o
 
 driver.o:	driver.cpp
@@ -17,6 +17,9 @@ driver.o:	driver.cpp
 			
 fileparser.o:	file_parser.cc file_parser.h file_parse.exception.h
 				${CC} ${CCFLAGS} -c file_parser.cc
+				
+opcodetab.o:	opcodetab.cc opcodetab.h opcode_error_exception.h
+			${CC} ${CCFLAGS} -c opcodetab.cc
 				
 clean:	
 	rm -f ${TORM}
