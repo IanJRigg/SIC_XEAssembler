@@ -1,11 +1,20 @@
-/*  file_parser.h
+/*  
+    Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
+    masc1258
+    prog1 : file_parser.h
     CS530, Spring 2014
+    Team Florida
 */
 
 #ifndef FILE_PARSER_H
 #define FILE_PARSER_H
 
 #include <string>
+#include <cstdlib>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -24,7 +33,7 @@ class file_parser {
         // Throws a file_parse_exception if an error occurs.
         // if the source code file fails to conform to the above
         // specification, this is an error condition.     
-        void read_file();    
+        void read_file();
         
         // returns the token found at (row, column).  Rows and columns
         // are zero based.  Returns the empty string "" if there is no 
@@ -36,13 +45,38 @@ class file_parser {
         // the exact formatting of the original, but uses tabs to align
         // similar tokens in a column. The fields should match the 
         // order of token fields given above (label/opcode/operands/comments)
-		void print_file();
+	    void print_file();
         
         // returns the number of lines in the source code file
         int size();
         
-		private:
+    private:
         // your variables and private methods go here
+        string in_file_name;
+	std::ifstream infile;
+	ofstream outfile;
+	struct parsed_line{
+			string label;
+			string opcode;
+			string operand;
+			string comment;
+			parsed_line():  label(""),
+					opcode(""),
+					operand(""),
+					comment(""){}
+		};
+	string line;
+	int v_counter;
+	vector<parsed_line> contents;
+    
+	void insert_to_vector(string ,vector<parsed_line>& ,
+                int ,string&, int, int ,stringstream&);
+	void throw_error(string, stringstream&);
+	int is_comment(string, int);
+ 	int is_opcode(string,int,int);
+ 	int is_operand(string,int,int,int);
+ 	int is_label(string, int);
+ 	int has_too_many_tokens(string,int);
 
 };
 
