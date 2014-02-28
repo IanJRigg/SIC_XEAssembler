@@ -1,21 +1,24 @@
-/*
-    Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
-    masc1258
-    opcodetab.cc
-    CS530, Spring 2014
-*/
-
-#include <map>
 #include <string>
+#include <cstdlib>
+#include <vector>
 #include <iostream>
-#include "opcodetab.h"
-#include "opcode_error_exception.h"
+#include <fstream>
+#include <map>
+#include "file_parse_exception.h"
 
 using namespace std;
 
-//constructor creates a new dictionary structure and loads all of the opcodes for 
-// the SIC/XE architecture into the table. 
-opcodetab::opcodetab() {
+string get_machine_code(string);
+int get_instruction_size(string);
+bool opcode_exists(string);
+
+std::map<std::string, pair<std::string, std::string> > opcode_map;
+std::map<std::string, pair<std::string, std::string> >::iterator m_iter;
+
+int main() {	
+	//std::map<std::string, pair<std::string, std::string> > opcode_map;
+	//std::map<std::string, pair<std::string, std::string> >::iterator m_iter;
+	
 	std::string codes[] = { "ADD", "ADDF", "ADDR", "AND", "CLEAR", "COMP", "COMPF", 
 				"COMPR","DIV", "DIVF", "DIVR", "FIX", "FLOAT", "HIO", 
 				"J", "JEQ", "JGT", "JLT", "JSUB", "LDA", "LDB", 
@@ -40,33 +43,47 @@ opcodetab::opcodetab() {
 				"3", "2", "3", "2", "2", "1", "3", "3", "3", "3", "3", "3", 
 				"3", "3", "3", "3", "3", "3", "3", "2", "2", "3", "1", "3", 
 				"2", "3" };
-			
-	for(int i = 0; i < 59; i++) {
+				
+	//cout << codes[1] << endl;
+	
+	for (int i = 0; i < 59; i++) {
 		opcode_map.insert(std::make_pair(codes[i], std::make_pair(hex_codes[i], format[i])));
-	}	
+	}
+	m_iter = opcode_map.begin();
+	cout << m_iter->first << endl;
+
+	for(m_iter = opcode_map.begin(); m_iter != opcode_map.end(); m_iter++) {
+		cout << "Key: " << m_iter->first << " Value: " << m_iter->second.first << endl;
+	}
+	
+	string mac_code = get_machine_code("TIXR");
+	cout << mac_code << endl;
+	int format_size = get_instruction_size("TIXR");
+	cout << format_size << endl;
+
+	//cout << opcode_map.find(codes[0])->second.first << endl;			
+return 0;
 }
 
-string opcodetab::get_machine_code(string s) {
+string get_machine_code(string s) {
 	if(opcode_exists(s)) {
 		string hex = opcode_map.find(s)->second.first;
 		return hex;
 	}
-	else
-		throw opcode_error_exception("Opcode entered does not exist");
 }
 
-int opcodetab::get_instruction_size(string s) {
+int get_instruction_size(string s) {
 	if(opcode_exists(s)) {
 		string size = opcode_map.find(s)->second.second;
 		int value = atoi(size.c_str());
 		return value;
 	}
-	else
-		throw opcode_error_exception("Opcode entered does not exist");
 }
 
-bool opcodetab::opcode_exists(string s) {
+bool opcode_exists(string s) {
 	if(opcode_map.find(s) == opcode_map.end())
 		return false;
 	return true;
 }
+
+
