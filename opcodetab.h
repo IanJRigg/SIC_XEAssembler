@@ -1,8 +1,9 @@
 /*
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    opcodetab.h
+    Prog2: opcodetab.h
     CS530, Spring 2014
+    Team Florida
 */
 
 #ifndef OPCODETAB_H
@@ -12,6 +13,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <sstream>
+
+#define NUMBER_OF_OPCODES 59
+#define INVALID_FORMAT_FOUR_NUM 17
 
 using namespace std;
 
@@ -43,10 +48,14 @@ class opcodetab {
 	static string codes[59];
 	static string hex_codes[59];
 	static string format[59];
+        static string invalid_format_four[17];
 	map<string, pair<string, string> > opcode_map;
 	map<string, pair<string, string> >::iterator m_iter;
+        map<string,string> opcode_format_map;        
+	map<string,string>::iterator format_iter;
 	
 	bool opcode_exists(string);
+        bool invalid_format(string);
 };
 
 #endif
