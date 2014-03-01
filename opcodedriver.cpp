@@ -13,6 +13,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     try {
+    //Create opcodes
     std::string codes[] = { "ADD", "AdD","aDd","adD","Add","aDD","ADd", "+ADD","+aDd","+adD","+Add", "ADDF", "+ADDF", "ADDR", "AND", "+AND", "CLEAR", "COMP", "+COMP", "COMPF", 
 				"+COMPF","COMPR","DIV","+DIV", "DIVF","+DIVF", "DIVR", "FIX", "FLOAT", "HIO", 
 				"J","+J", "JEQ","+JEQ", "JGT","+JGT", "JLT","+JLT", "JSUB","+JSUB", "LDA", "+LDA", "LDB","+LDB", 
@@ -22,7 +23,7 @@ int main(int argc, char *argv[]) {
 				"STF","+STF", "STI","+STI", "STL","+STL", "STS","+STS", "STSW","+STSW", "STT","+STT", "STX", "+STX",
 				"SUB","+SUB", "SUBF","+SUBF", "SUBR", "SVC", "TD","+TD", "TIO", "TIX","+TIX", 
 				"TIXR", "WD","+WD" };
-                                
+     //Create list of bad opcodes                           
      std::string invalid_format_four[] = {"+ADDR","+CLEAR","+COMPR","+DIVR","+FIX","+FLOAT",
                                 "+HIO","+MULR","+NORM","+RMO","+SHIFTL","+SHIFTR","+SIO","+SUBR",
                                 "+SVC","+TIO","+TIXR"};
@@ -30,6 +31,7 @@ int main(int argc, char *argv[]) {
     opcodetab opcode;
     string machinecode; 
     int instructsize;
+    //Check valid opcodes functionality
     for(unsigned int i=0;i<(sizeof(codes)/sizeof(*codes)); i++){
         machinecode = opcode.get_machine_code(codes[i]);
         instructsize = opcode.get_instruction_size(codes[i]);
@@ -42,7 +44,7 @@ int main(int argc, char *argv[]) {
             }
         }       
     }
-    
+    //Check all invalid formats to verify they are caught
     unsigned int i=0;
     while(i<INVALID_FORMAT_FOUR_NUM){
     
