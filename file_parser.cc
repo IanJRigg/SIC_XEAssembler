@@ -14,6 +14,7 @@ using namespace std;
 file_parser::file_parser(string file_name) {
     in_file_name = file_name;
     v_counter=0;
+    contents.reserve(500);
 }
 
 //destructor
