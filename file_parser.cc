@@ -141,16 +141,24 @@ void file_parser::insert_to_vector(string location,vector<parsed_line>& contents
 			int i,string& line, int start,int end,stringstream& stream){
     stream<<line.substr(start,end)<<'\0';
     if(location.compare("comment")==0){ 
-        contents[i].comment = stream.str();
+        //contents[i].comment = stream.str();
+	//commented out Mar 1 @ 9:19pm
+	contents.at(i).comment = stream.str();
     }
     else if(location.compare("label")==0){
-        contents[i].label = stream.str();
+        //contents[i].label = stream.str();
+	//commented out Mar 1 @ 9:19pm
+	contents.at(i).label = stream.str();
     }
     else if(location.compare("opcode")==0){  
-        contents[i].opcode = stream.str();
+        //contents[i].opcode = stream.str();
+	//commented out Mar 1 @ 9:19pm
+	contents.at(i).opcode = stream.str();
     }   
     else if(location.compare("operand")==0){ 
-        contents[i].operand = stream.str();
+        //contents[i].operand = stream.str();
+	//commented out Mar 1 @ 9:19pm
+	contents.at(i).operand = stream.str();
     }
     else
         throw file_parse_exception("with insert_to_vector function, no such column");
