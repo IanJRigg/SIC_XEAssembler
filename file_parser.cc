@@ -97,7 +97,7 @@ string file_parser::get_token(unsigned int r, unsigned int c) {
     unsigned int row = r;
     string token;
     //Prevents possible segmentation fault if wrong row selected
-    if(contents.size()<row){
+    if(contents.size() < row){
         stringstream ss_error;
         ss_error<<"no such row: "<<row<<" in file "<<in_file_name;
         throw file_parse_exception( ss_error.str());
@@ -105,13 +105,13 @@ string file_parser::get_token(unsigned int r, unsigned int c) {
 
     switch (column) {
     	case 0:
-		return contents[row].label;
+		return contents.at(row).label;
 	case 1:
-		return contents[row].opcode;
+		return contents.at(row).opcode;
 	case 2:
-		return contents[row].operand;
+		return contents.at(row).operand;
 	case 3:
-		return contents[row].comment;
+		return contents.at(row).comment;
 	default:
 		return "";
     }
@@ -120,10 +120,10 @@ string file_parser::get_token(unsigned int r, unsigned int c) {
 void file_parser::print_file() {
 //prints the input file in proper format
     for (int i = 0; i < v_counter; i++) {
-	cout << contents[i].label << "\t";
-	cout << contents[i].opcode << "\t";
-	cout << contents[i].operand << "\t";
-	cout << contents[i].comment << endl;
+	cout << contents.at(i).label << "\t";
+	cout << contents.at(i).opcode << "\t";
+	cout << contents.at(i).operand << "\t";
+	cout << contents.at(i).comment << endl;
     }
 }
 
