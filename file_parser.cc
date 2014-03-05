@@ -37,11 +37,9 @@ void file_parser::read_file() {
         contents.push_back(parsed_line()); //Creates each row
         for(unsigned int i=0; i< line.size();i++){
 	    if(is_comment(line,i)){
-                ss<<line.substr(i,line.size()-1)<<'\0';
-                contents[v_counter].comment = ss.str();
-                ss.str("");
+               insert_to_vector("comment",contents,v_counter,line,i,line.size()-i,ss);
                 break;
-            } 
+            }
             if(is_label(line,i)){
 	    	if(!isalpha(line[i])){
 		    throw_error(" 'Labels cannot start with a number'",ss_error);
@@ -54,16 +52,10 @@ void file_parser::read_file() {
 		    i++;
 		}
 		if(i>8){
-                    ss<<line.substr(0,8)<<'\0';
-                    contents[v_counter].label = ss.str();
-                    ss.str("");
-		    //insert_to_vector("label",contents,v_counter,line,0,8,ss);
+		    insert_to_vector("label",contents,v_counter,line,0,8,ss);
 		    continue;
 		}
-                ss<<line.substr(0,i)<<'\0';
-                contents[v_counter].label = ss.str();
-                ss.str("");
-                //insert_to_vector("label",contents,v_counter,line,0,i,ss);
+                insert_to_vector("label",contents,v_counter,line,0,i,ss);
                 continue;
             }
             if(is_opcode(line,i,opcode_set)){
@@ -71,10 +63,7 @@ void file_parser::read_file() {
                 while(!isspace(line[i])){
                 i++;
                 }
-                ss<<line.substr(start,i-start)<<'\0';
-                contents[v_counter].opcode = ss.str();
-                ss.str("");
-                //insert_to_vector("opcode",contents,v_counter,line,start,i-start,ss);
+                insert_to_vector("opcode",contents,v_counter,line,start,i-start,ss);
                 opcode_set=1;
                 continue;
             }
@@ -86,10 +75,7 @@ void file_parser::read_file() {
                     }
                 i++;
                 }
-                ss<<line.substr(start,i-start)<<'\0';
-                contents[v_counter].operand = ss.str();
-                ss.str("");
-                //insert_to_vector("operand",contents,v_counter,line,start,i-start,ss);
+                insert_to_vector("operand",contents,v_counter,line,start,i-start,ss);
                 operand_set=1;
                 continue;
             }
@@ -146,6 +132,31 @@ int file_parser::size() {
     return contents.size();
 }
 
+//Takes in a column location name, vector, vector row number, string to parse
+//starting parse location, ending parse location, and stringstream variable
+//Checks location and inputs into corresponding struct variable
+//throws an error if location does not exist
+//clears the stream
+void file_parser::insert_to_vector(string location,vector<parsed_line>& contents,
+			int i,string& line, int start,int end,stringstream& stream){
+    stream<<line.substr(start,end)<<'\0';
+    if(location.compare("comment")==0){ 
+        contents[i].comment = stream.str();
+    }
+    else if(location.compare("label")==0){
+        contents[i].label = stream.str();
+    }
+    else if(location.compare("opcode")==0){  
+        contents[i].opcode = stream.str();
+    }   
+    else if(location.compare("operand")==0){ 
+        contents[i].operand = stream.str();
+    }
+    else
+        throw file_parse_exception("with insert_to_vector function, no such column");
+    stream.str(""); 
+ } 
+ 
  //Creates and throws a file_parse_exception
  void file_parser::throw_error(string error, stringstream& stream){
     stream<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<error;
