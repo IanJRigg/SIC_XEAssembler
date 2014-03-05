@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
             machinecode = opcode.get_machine_code(invalid_format_four[i]);
         }
         catch(opcode_error_exception caught){
-            cout<<"**Caught bad format "<<caught.get_message()<<endl;
+            cout<<"**Caught bad format "<<caught.getMessage()<<endl;
         }
         
         cout<<"Testing bad instructions size value: "<<invalid_format_four[i]<<endl;
@@ -62,13 +62,13 @@ int main(int argc, char *argv[]) {
         instructsize = opcode.get_instruction_size(invalid_format_four[i]);
         }
         catch(opcode_error_exception caught){
-            cout<<"**Caught bad format "<<caught.get_message()<<endl;
+            cout<<"**Caught bad format "<<caught.getMessage()<<endl;
         }
         i++;
     }
     }
     catch(opcode_error_exception excpt) {
-        cout << "**Sorry, error " << excpt.get_message() << endl;
+        cout << "**Sorry, error " << excpt.getMessage() << endl;
     }
     
     
