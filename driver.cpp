@@ -3,6 +3,8 @@
 #include <vector>
 #include "file_parser.h"
 #include "file_parse_exception.h"
+#include "opcodetab.h"
+#include "opcode_error_exception.h"
 
 using namespace std;
 
@@ -25,11 +27,21 @@ int main(int argc, char *argv[]) {
     cout << "Token at 15,0 is: " << parser.get_token(15,0) << endl;    
     cout << "Token at 15,1 is: " << parser.get_token(15,1) << endl;
     cout << "Token at 15,2 is: " << parser.get_token(15,2) << endl;
-    cout << "Token at 15,3 is: " << parser.get_token(15,3) << endl;    
-            
+    cout << "Token at 15,3 is: " << parser.get_token(15,3) << endl;   
+    
+    opcodetab table;
+    string code = parser.get_token(12,1).c_str();
+    string mac_code = table.get_machine_code(code);
+    cout << "LDA hex is " << mac_code << endl;
+    int format_size = table.get_instruction_size(parser.get_token(12,1).c_str());//code);
+    cout << "LDA size is " << format_size << endl;
+     
     }
     catch(file_parse_exception excpt) {
         cout << "**Sorry, error " << excpt.getMessage() << endl;
+    }
+    catch(opcode_error_exception excpt) {
+    	cout << "***Sorry, exception " << excpt.get_message() << endl;
     }
     
     

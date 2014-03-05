@@ -60,10 +60,10 @@ class file_parser {
 			string opcode;
 			string operand;
 			string comment;
-			parsed_line():  label(""),
-					opcode(""),
-					operand(""),
-					comment(""){}
+			/*parsed_line():  label(" "),
+					opcode(" "),
+					operand(" "),
+					comment(" "){}*/
 		};
 	string line;
 	int v_counter;
