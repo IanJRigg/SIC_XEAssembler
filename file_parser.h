@@ -60,17 +60,15 @@ class file_parser {
 			string opcode;
 			string operand;
 			string comment;
-			/*parsed_line():  label(" "),
+			parsed_line():  label(" "),
 					opcode(" "),
 					operand(" "),
-					comment(" "){}*/
+					comment(" "){}
 		};
 	string line;
 	int v_counter;
 	vector<parsed_line> contents;
-    
-	void insert_to_vector(string ,vector<parsed_line>& ,
-                int ,string&, int, int ,stringstream&);
+
 	void throw_error(string, stringstream&);
 	int is_comment(string, int);
  	int is_opcode(string,int,int);

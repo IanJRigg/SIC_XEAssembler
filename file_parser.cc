@@ -33,11 +33,13 @@ void file_parser::read_file() {
         int operand_set=0; //Checks if operand has been tokenized
         int opcode_set=0; //Checks if opcode has been tokenized
         int had_single_quote=0; //Checks if a single quote has been processed
-        stringstream ss,ss_error;
+        stringstream ss_error;
+        string comment,label,opcode,operand;
         contents.push_back(parsed_line()); //Creates each row
         for(unsigned int i=0; i< line.size();i++){
 	    if(is_comment(line,i)){
-               insert_to_vector("comment",contents,v_counter,line,i,line.size()-i,ss);
+                comment = line.substr(i,line.size()-i);
+                contents.at(v_counter).comment = comment;                
                 break;
             }
             if(is_label(line,i)){
@@ -52,31 +54,39 @@ void file_parser::read_file() {
 		    i++;
 		}
 		if(i>8){
-		    insert_to_vector("label",contents,v_counter,line,0,8,ss);
+                    label = line.substr(0,8);
+                    contents.at(v_counter).label = label;
 		    continue;
 		}
-                insert_to_vector("label",contents,v_counter,line,0,i,ss);
+                label = line.substr(0,i);
+                contents.at(v_counter).label = label;
                 continue;
             }
             if(is_opcode(line,i,opcode_set)){
                 int start = i;
-                while(!isspace(line[i])){
-                i++;
+                while(!isspace(line[i]) && line[i]!='.'){
+                    i++;                                
                 }
-                insert_to_vector("opcode",contents,v_counter,line,start,i-start,ss);
+                opcode = line.substr(start,i-start);
+                contents.at(v_counter).opcode = opcode;
                 opcode_set=1;
+                //reverse and let comment case collect rest of line
+                if(line[i]=='.')i--;
                 continue;
             }
             if(is_operand(line,i,opcode_set,operand_set)){
                 int start = i;
-                while(!isspace(line[i])||(had_single_quote==1)){
+                while(line[i]!='.' && (!isspace(line[i])||(had_single_quote==1))){
                     if(line[i]=='\''){
                         had_single_quote++;
                     }
-                i++;
+                    i++;               
                 }
-                insert_to_vector("operand",contents,v_counter,line,start,i-start,ss);
+                operand = line.substr(start,i-start);
+                contents.at(v_counter).operand = operand;
                 operand_set=1;
+                //reverse and let comment case collect rest of line
+                if(line[i]=='.')i--;
                 continue;
             }
             if(isspace(line[i])){
@@ -97,7 +107,7 @@ string file_parser::get_token(unsigned int r, unsigned int c) {
     unsigned int row = r;
     string token;
     //Prevents possible segmentation fault if wrong row selected
-    if(contents.size() < row){
+    if(contents.size()-1 < row){
         stringstream ss_error;
         ss_error<<"no such row: "<<row<<" in file "<<in_file_name;
         throw file_parse_exception( ss_error.str());
@@ -132,43 +142,6 @@ int file_parser::size() {
     return contents.size();
 }
 
-//Takes in a column location name, vector, vector row number, string to parse
-//starting parse location, ending parse location, and stringstream variable
-//Checks location and inputs into corresponding struct variable
-//throws an error if location does not exist
-//clears the stream
-void file_parser::insert_to_vector(string location,vector<parsed_line>& contents,
-			int i,string& line, int start,int end,stringstream& stream){
-    //string sub = line.substr(start,end);
-    stream<<line.substr(start,end);
-    if(location.compare("comment")==0){ 
-        //contents[i].comment = stream.str();
-	//commented out Mar 1 @ 9:19pm
-	contents.at(i).comment = stream.str();
-	//contents[i].comment = sub;
-    }
-    else if(location.compare("label")==0){
-        //contents[i].label = stream.str();
-	//commented out Mar 1 @ 9:19pm
-	contents.at(i).label = stream.str();
-	//contents[i].label = sub;
-    }
-    else if(location.compare("opcode")==0){  
-        //contents[i].opcode = stream.str();
-	//commented out Mar 1 @ 9:19pm
-	contents.at(i).opcode = stream.str();
-	//contents[i].opcode = sub;
-    }   
-    else if(location.compare("operand")==0){ 
-        //contents[i].operand = stream.str();
-	//commented out Mar 1 @ 9:19pm
-	contents.at(i).operand = stream.str();
-	//contents[i].operand = sub;
-    }
-    else
-        throw file_parse_exception("with insert_to_vector function, no such column");
-    stream.str(""); 
- } 
  
  //Creates and throws a file_parse_exception
  void file_parser::throw_error(string error, stringstream& stream){

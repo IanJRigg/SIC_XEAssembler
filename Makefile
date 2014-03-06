@@ -1,6 +1,6 @@
 #Ian Rigg, Richard Valles, Chris Andaya, Arron McCarter\
 masc1258\
-prog 1: makefile\
+prog 1: Makefile\
 CS530, Spring 2014\
 Team Florida\
 
@@ -13,13 +13,13 @@ driver:	driver.o file_parser.o opcodetab.o
 		${CC} ${CCFLAGS} -o driver driver.o file_parser.o opcodetab.o
 
 driver.o:	driver.cpp
-			${CC} ${CCFLAGS} -c driver.cpp
+		${CC} ${CCFLAGS} -c driver.cpp
 			
 fileparser.o:	file_parser.cc file_parser.h file_parse_exception.h
-				${CC} ${CCFLAGS} -c file_parser.cc
+		${CC} ${CCFLAGS} -c file_parser.cc
 				
 opcodetab.o:	opcodetab.cc opcodetab.h opcode_error_exception.h
-			${CC} ${CCFLAGS} -c opcodetab.cc
+		${CC} ${CCFLAGS} -c opcodetab.cc
 				
 clean:	
 	rm -f ${TORM}

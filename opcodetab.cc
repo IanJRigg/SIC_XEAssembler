@@ -76,8 +76,9 @@ string opcodetab::get_machine_code(string s) {
 	string hex = opcode_map.find(tmp)->second.first;
 	return hex;
     }
-    else
+    else{
 	throw opcode_error_exception("Opcode entered does not exist");
+        }
 }
 
 int opcodetab::get_instruction_size(string s) {
@@ -112,14 +113,16 @@ int opcodetab::get_instruction_size(string s) {
 
 //Method to verify opcode does/does not exist in map
 bool opcodetab::opcode_exists(string s) {
-    if(opcode_map.find(s) == opcode_map.end())
+    if(opcode_map.find(s) == opcode_map.end()){
 	return false;
+        }
     return true;
 }
 //Method to verify if opcode is not eligible for format 4
 bool opcodetab::invalid_format(string s){
-    if(opcode_format_map.find(s) == opcode_format_map.end())
+    if(opcode_format_map.find(s) == opcode_format_map.end()){
         return false;
+        }
     return true;
 }
 
