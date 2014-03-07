@@ -63,7 +63,7 @@ void file_parser::read_file() {
             }
             if(is_opcode(line[i],opcode_set)){
                 int start = i;
-                while(!isspace(line[i])){
+                while(!isspace(line[i])&&!iscntrl(line[i])){
                     if(line[i]=='.')
                         throw_error(" 'Invalid character in opcode' ");
                     i++;                                
@@ -75,15 +75,16 @@ void file_parser::read_file() {
             }
             if(is_operand(line[i],opcode_set,operand_set)){
                 int start = i;
-                while(!isspace(line[i])){
-                    if(line[i]=='.')
-                        throw_error(" 'Invalid character in operand'");
+                while(!isspace(line[i])&&!iscntrl(line[i])){
                     if(line[i]=='\''){
                         i++;
                         while(line[i]!='\''){i++;}
                         i++;
                         break;                        
                     }
+                     if(line[i]=='.'){
+                        throw_error(" 'Invalid character in operand'");
+                        }
                     i++;               
                 }
                 operand = line.substr(start,i-start);
