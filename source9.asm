@@ -6,11 +6,11 @@ test    lds     #3'checking this out' .Test comment
         ldt     #300
         ldx     #0
 addlf   lda     alpha,x   .loop control     xxxxxxx
-        add     beta,x
+        add.     beta,x
         sta     gamma,x   .1qqqqqqqqqqqqqqq     .bad line here                
         addr    s,x	  .2qqqqqqqqqqqqqqq     .bad line here
         compr   x,t 	  .3qqqqqqqqqqqqqqq     .bad line here
-        jlt     add.lf
+        jlt     addlf
 	jmp		.testing if only opcode and comment
 labeltest
 

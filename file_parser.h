@@ -67,14 +67,15 @@ class file_parser {
 		};
 	string line;
 	int v_counter;
+        stringstream ss_error;
 	vector<parsed_line> contents;
 
-	void throw_error(string, stringstream&);
-	int is_comment(string, int);
- 	int is_opcode(string,int,int);
- 	int is_operand(string,int,int,int);
- 	int is_label(string, int);
- 	int has_too_many_tokens(string,int);
+	void throw_error(string);
+	int is_comment(char);
+ 	int is_opcode(char,int);
+ 	int is_operand(char,int,int);
+ 	int is_label(char, int);
+ 	int has_too_many_tokens(char);
 
 };
 

@@ -33,23 +33,22 @@ void file_parser::read_file() {
         int operand_set=0; //Checks if operand has been tokenized
         int opcode_set=0; //Checks if opcode has been tokenized
         int had_single_quote=0; //Checks if a single quote has been processed
-        stringstream ss_error;
         string comment,label,opcode,operand;
         contents.push_back(parsed_line()); //Creates each row
         for(unsigned int i=0; i< line.size();i++){
-	    if(is_comment(line,i)){
+	    if(is_comment(line[i])){
                 comment = line.substr(i,line.size()-i);
                 contents.at(v_counter).comment = comment;                
                 break;
             }
-            if(is_label(line,i)){
+            if(is_label(line[i], i)){
 	    	if(!isalpha(line[i])){
-		    throw_error(" 'Labels cannot start with a number'",ss_error);
+		    throw_error(" 'Labels cannot start with a number'");
 		}
                 while(!isspace(line[i])){
 		    //Check to make sure contents are only alphanumeric or the null character
 		    if(!isalnum(line[i])&&line[i]!=0){
-		        throw_error(" 'Labels can only contain letters and numbers'",ss_error);
+		        throw_error(" 'Labels can only contain letters and numbers'");
 		    }
 		    i++;
 		}
@@ -62,38 +61,41 @@ void file_parser::read_file() {
                 contents.at(v_counter).label = label;
                 continue;
             }
-            if(is_opcode(line,i,opcode_set)){
+            if(is_opcode(line[i],opcode_set)){
                 int start = i;
-                while(!isspace(line[i]) && line[i]!='.'){
+                while(!isspace(line[i])){
+                    if(line[i]=='.')
+                        throw_error(" 'Invalid character in opcode' ");
                     i++;                                
                 }
                 opcode = line.substr(start,i-start);
                 contents.at(v_counter).opcode = opcode;
                 opcode_set=1;
-                //reverse and let comment case collect rest of line
-                if(line[i]=='.')i--;
                 continue;
             }
-            if(is_operand(line,i,opcode_set,operand_set)){
+            if(is_operand(line[i],opcode_set,operand_set)){
                 int start = i;
-                while(line[i]!='.' && (!isspace(line[i])||(had_single_quote==1))){
+                while(!isspace(line[i])){
+                    if(line[i]=='.')
+                        throw_error(" 'Invalid character in operand'");
                     if(line[i]=='\''){
-                        had_single_quote++;
+                        i++;
+                        while(line[i]!='\''){i++;}
+                        i++;
+                        break;                        
                     }
                     i++;               
                 }
                 operand = line.substr(start,i-start);
                 contents.at(v_counter).operand = operand;
                 operand_set=1;
-                //reverse and let comment case collect rest of line
-                if(line[i]=='.')i--;
                 continue;
             }
             if(isspace(line[i])){
                 continue;
             }
-            if(has_too_many_tokens(line,i)){
-	    	throw_error(" 'Too Many Tokens'",ss_error);
+            if(has_too_many_tokens(line[i])){
+	    	throw_error(" 'Too Many Tokens'");
             }
         }
         v_counter++;
@@ -144,46 +146,46 @@ int file_parser::size() {
 
  
  //Creates and throws a file_parse_exception
- void file_parser::throw_error(string error, stringstream& stream){
-    stream<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<error;
-    throw file_parse_exception(stream.str());
+ void file_parser::throw_error(string error){
+    ss_error<<"at line: "<<v_counter+1<<", in file "<<in_file_name<<error;
+    throw file_parse_exception(ss_error.str());
  }
  
  //Checks if character is start of a comment
- int file_parser::is_comment(string line, int i){
-    if(line[i] == '.'){
+ int file_parser::is_comment(char a){
+    if(a == '.'){
         return 1;
     }
     return 0;
  }
  
  //Checks if character should be an opcode
- int file_parser::is_opcode(string line, int i, int opcode_set){
-    if((!isspace(line[i]))&&(!opcode_set)){
+ int file_parser::is_opcode(char a, int opcode_set){
+    if((!isspace(a))&&(!opcode_set)){
         return 1;
     }
     return 0;
  }
  
  //Checks if character should be an operand
- int file_parser::is_operand(string line,int i,int opcode_set,int operand_set){
-    if((!isspace(line[i]))&&(opcode_set)&&(!operand_set)){
+ int file_parser::is_operand(char a,int opcode_set,int operand_set){
+    if((!isspace(a))&&(opcode_set)&&(!operand_set)){
         return 1;
     }
     return 0;
  }
  
  //Checks if character is start of a label
- int file_parser::is_label(string line, int i){
-    if((!isspace(line[i])) && (i==0)){
+ int file_parser::is_label(char a, int i){
+    if((!isspace(a)) && (i==0)){
         return 1;
     }
     return 0;
  }
  
  //Checks if the line has too many tokens
- int file_parser::has_too_many_tokens(string line, int i){
-    if((!is_comment(line,i))&&(!isspace(line[i]))){
+ int file_parser::has_too_many_tokens(char a){
+    if((!is_comment(a))&&(!isspace(a))){
         return 1;
     }
     return 0;
