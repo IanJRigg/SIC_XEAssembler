@@ -45,10 +45,10 @@ class opcodetab {
                         
     private:
         // your variables and private methods go here
-	static string codes[59];
-	static string hex_codes[59];
-	static string format[59];
-        static string invalid_format_four[17];
+	static const string codes[59];
+        static const string hex_codes[59];
+	static const string format[59];
+        static const string invalid_format_four[17];
 	map<string, pair<string, string> > opcode_map;
 	map<string, pair<string, string> >::iterator m_iter;
         map<string,string> opcode_format_map;        

@@ -7,7 +7,7 @@
 #include "opcode_error_exception.h"
 
 //change to 1 when using source8.asm
-#define FULL_SIZE 1
+#define FULL_SIZE 0
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     cout << code2 <<" size is " << format_size << endl; 
     }
     catch(opcode_error_exception exchk){
-        cout<<"**Sorry, error "<< exchk.get_message()<<endl;
+        cout<<"**Sorry, error "<< exchk.getMessage()<<endl;
     }
     }
     }
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         cout << "**Sorry, error " << excpt.getMessage() << endl;
     }
     catch(opcode_error_exception excpt) {
-    	cout << "***Sorry, exception " << excpt.get_message() << endl;
+    	cout << "***Sorry, exception " << excpt.getMessage() << endl;
     }
     
     
