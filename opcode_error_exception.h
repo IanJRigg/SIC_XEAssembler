@@ -25,7 +25,7 @@ public:
 		message = "An error has occured";
 	}
 	
-	string get_message() {
+	string getMessage() {
 		return message;
 	}
 	
