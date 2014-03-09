@@ -1,6 +1,6 @@
 #Ian Rigg, Richard Valles, Chris Andaya, Arron McCarter\
 masc1258\
-prog 1: Makefile\
+Prog 2: Makefile\
 CS530, Spring 2014\
 Team Florida\
 

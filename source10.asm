@@ -9,7 +9,7 @@ OFFB    EQU     8
         LDB     #delta
 . storage allocation section
 test    byte    C'12345'
-test2   byte    x'007b'
+test2   byte    x'00.7b'
 zeta    BYTE    C'EOF'
 eta     byte    X'FFF.FFE'
 foo     word    bsrch
