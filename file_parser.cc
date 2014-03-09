@@ -42,7 +42,7 @@ void file_parser::read_file() {
                 break;
             }
             if(is_label(line[i], i)){
-	    	if(!isalpha(line[i])){
+	    	if(!isalpha(line[i])&&!iscntrl(line[i])){
 		    throw_error(" 'Labels cannot start with a number'");
 		}
                 while(!isspace(line[i])){

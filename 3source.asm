@@ -7,13 +7,13 @@
 prog	start	0	.start of sample program
 bsrch	EQU	14
 OFFB	EQU	8
-	BASE	delt.a
+	BASE	delta
 	LDB	#delta
 	+MULR	a,b
 	+LDA	#3
 
 			.comment column
-	LDA.comment touching opcode
+	LDA .comment touching opcode
 	.comment in opcode column
 .storage allocation section
 test	byte	C'12345'
