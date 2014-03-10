@@ -45,11 +45,11 @@ opcodetab::opcodetab() {
                         "SVC","TIO","TIXR"};
      //Insert invalid format four items into map                   
     for(int i = 0; i < INVALID_FORMAT_FOUR_NUM; i++) {
-	opcode_format_map.insert(std::make_pair(invalid_format_four[i],"test"));
+	opcode_format_map.insert(make_pair(invalid_format_four[i],"test"));
     }
     //Insert opcodes into map		
     for(int i = 0; i < NUMBER_OF_OPCODES; i++) {
-	opcode_map.insert(std::make_pair(codes[i], std::make_pair(hex_codes[i], format[i])));
+	opcode_map.insert(make_pair(codes[i], make_pair(hex_codes[i], format[i])));
     }	
 }
 
@@ -58,7 +58,7 @@ string opcodetab::get_machine_code(string s) {
     stringstream ss;
     int format =0;//Tracks if opcode is format 4
     //Change incomming string to all uppercase
-    std::transform(tmp.begin(), tmp.end(),tmp.begin(), ::toupper);
+    transform(tmp.begin(), tmp.end(),tmp.begin(), ::toupper);
     
     //Check if opcode is attempting format 4 and if so increment counter
     if(s[0]=='+'){
@@ -82,12 +82,11 @@ string opcodetab::get_machine_code(string s) {
 }
 
 int opcodetab::get_instruction_size(string s) {
-    stringstream ss;
     string tmp = s;
     int format = 0;
     
     //Transform to uppercase        
-    std::transform(tmp.begin(), tmp.end(),tmp.begin(), ::toupper);
+    transform(tmp.begin(), tmp.end(),tmp.begin(), ::toupper);
     //Check if format 4
     if(s[0]=='+'){
         tmp = tmp.substr(1,tmp.size());
