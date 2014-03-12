@@ -9,11 +9,11 @@ TORM = file_parser.o driver.o opcodetab.o driver
 CC = g++
 CCFLAGS = -g -O3 -Wall -Wcast-qual -Wpointer-arith -Wwrite-strings
 
-driver:	driver.o file_parser.o opcodetab.o
-		${CC} ${CCFLAGS} -o driver driver.o file_parser.o opcodetab.o
+sicxeas:	sicxeas.o file_parser.o opcodetab.o
+		${CC} ${CCFLAGS} -o sicxeas sicxeas.o file_parser.o opcodetab.o
 
-driver.o:	driver.cpp
-		${CC} ${CCFLAGS} -c driver.cpp
+sicxeas.o:	sicxe_asm.cpp sicxe_asm.h symtab.h symtab.cc symtab_exception.h 
+		${CC} ${CCFLAGS} -c sicxe_asm.cpp
 			
 fileparser.o:	file_parser.cc file_parser.h file_parse_exception.h
 		${CC} ${CCFLAGS} -c file_parser.cc
