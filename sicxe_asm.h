@@ -15,6 +15,8 @@ class sicxe_asm{
 	public:
 
 	private:
+		void assign_addresses();
 
+		void write_to_listing_file();
 };
 #endif
