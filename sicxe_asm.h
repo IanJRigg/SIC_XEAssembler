@@ -9,10 +9,11 @@
 #ifndef SICXE_ASM_H
 #define SICXE_ASM_H
 
-using namespace std;
+#include <iostream>
+#include <string>
+#include "file_parser.h"
+#include "opcodetab.h"
+#include "symtab.h"
 
-class symtab(){
-	public:
 
-	private:
-}
+#endif
