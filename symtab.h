@@ -11,12 +11,11 @@
 
 #include "file_parser.h"
 #include "opcodetab.h"
-
-#include <iostream>
 #include <string>
-#include <vector>
 
 using namespace std;
+
+class file_parser;
 
 class symtab{
 	public:
@@ -48,9 +47,11 @@ class symtab{
 					opcode(" "),
 					operand(" "){}
 		};
-		string file_to_read;
-		file_parser parser(string);
+		file_parser parser;
 		vector<prog_listing> listings;
 		int size;
 };
+symtab::symtab(string filename):
+  file_parser(filename)
+  {}
 #endif
