@@ -41,8 +41,18 @@ class sicxe_asm{
 					opcode(" "),
 					operand(" "){}
 		};
-		string source_file_name;		
+		string source_file_name;
+		stringstream ss_error;
+		vector<prog_listing> lines;
+		unsigned int size;
+		symtab symbol_table;
+		opcodetab opcode_table;
 
-
+		void throw_error(string);
+		void write_to_lines(string, string, string, string);
+		void print_file();
+		string validate_address(string);
+		string increment_location_counter(string, unsigned int);
+		string itohs(string);
 };
 #endif

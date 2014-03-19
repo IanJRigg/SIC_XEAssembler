@@ -1,16 +1,17 @@
 .sample program for SIC/XE architecture
 .
-test    lds     #3'checking this out' .Test comment
+.Test comment
 prog    start   0    .start of sample program
-test    lds     #3'checking this out' .Test comment
+test    lds     #3 .Test comment
+label
         ldt     #300
         ldx     #0
-addlf   lda     alpha,x   .loop control     xxxxxxx
+addlf   lda     alpha,x   .loop control 
         add     beta,x
-        sta     gamma,x   .1qqqqqqqqqqqqqqq     .bad line here                
-        addr    s,x	  .2qqqqqqqqqqqqqqq     .bad line here
-        compr   x,t 	  .3qqqqqqqqqqqqqqq     .bad line here
-        jlt     add.lf
+        sta     gamma,x   .1qqqqqqqqqqqqqqq                  
+        addr    s,x	  .2qqqqqqqqqqqqqqq     
+        compr   x,t 	  .3qqqqqqqqqqqqqqq     
+        jlt     add   .lf
 	jmp		.testing if only opcode and comment
 labeltest
 
