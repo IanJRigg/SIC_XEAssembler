@@ -9,8 +9,20 @@
 
 using namespace std;
 
-symtab::symtab(){
+symtab::symtab(){}
 
-}
 symtab::~symtab() {}
 
+bool symtab::already_in_symtab(string key){
+    return (symbol_table.find(key) != symbol_table.end());
+}
+
+string symtab::get_value(string key){
+    if(!already_in_symtab(key))
+      return ""; // Replace this with a thrown error
+    return (symbol_table.find(key)->second);
+}
+
+void symtab::insert(string key, string value){
+    symbol_table.insert(make_pair(key, value));
+}
