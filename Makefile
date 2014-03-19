@@ -1,5 +1,10 @@
-#make file for prog3, CS530 Spring 2014
+#Ian Rigg, Richard Valles, Chris Andaya, Arron McCarter\
+masc1258\
+prog 3: Makefile\
+CS530, Spring 2014\
+Team Florida\
 
+#Makefile
 TORM = opcodetab.o sicxe_asm sicxe_asm.o file_parser.o symtab.o
 CC = g++
 CCFLAGS = -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wwrite-strings 
@@ -21,4 +26,6 @@ file_parser.o:	file_parser.cc file_parser.h file_parse_exception.h
 		${CC} ${CCFLAGS} -c file_parser.cc                
 clean:
 	rm -f ${TORM}
+
+#End Makefile
                         

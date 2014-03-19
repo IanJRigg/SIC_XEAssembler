@@ -41,21 +41,21 @@ void file_parser::read_file() {
                 break;
             }
             if(is_label(line[i], i)){
-	    	if(!isalpha(line[i])&&!iscntrl(line[i])){
-		    throw_error(" 'Labels cannot start with a number'");
-		}
+                if(!isalpha(line[i])&&!iscntrl(line[i])){
+                    throw_error(" 'Labels cannot start with a number'");
+                }
                 while(!isspace(line[i])){
 		    //Check to make sure contents are only alphanumeric or the null character
-		    if(!isalnum(line[i])&&line[i]!=0){
-		        throw_error(" 'Labels can only contain letters and numbers'");
-		    }
-		    i++;
-		}
-		if(i>8){
+                    if(!isalnum(line[i])&&line[i]!=0){
+                        throw_error(" 'Labels can only contain letters and numbers'");
+                    }
+                i++;
+                }
+                if(i>8){
                     label = line.substr(0,8);
                     contents.at(v_counter).label = label;
-		    continue;
-		}
+                    continue;
+                }
                 label = line.substr(0,i);
                 contents.at(v_counter).label = label;
                 continue;
@@ -77,13 +77,15 @@ void file_parser::read_file() {
                 while(!isspace(line[i])&&!iscntrl(line[i])){
                     if(line[i]=='\''){
                         i++;
-                        while(line[i]!='\''){i++;}
+                        while(line[i]!='\''){
+                            i++;
+                        }
                         i++;
                         break;                        
                     }
                      if(line[i]=='.'){
                         throw_error(" 'Invalid character in operand'");
-                        }
+                     }
                     i++;               
                 }
                 operand = line.substr(start,i-start);
@@ -95,7 +97,7 @@ void file_parser::read_file() {
                 continue;
             }
             if(has_too_many_tokens(line[i])){
-	    	throw_error(" 'Too Many Tokens'");
+                throw_error(" 'Too Many Tokens'");
             }
         }
         v_counter++;
@@ -117,25 +119,25 @@ string file_parser::get_token(unsigned int r, unsigned int c) {
 
     switch (column) {
     	case 0:
-		return contents.at(row).label;
-	case 1:
-		return contents.at(row).opcode;
-	case 2:
-		return contents.at(row).operand;
-	case 3:
-		return contents.at(row).comment;
-	default:
-		return "";
+            return contents.at(row).label;
+        case 1:
+            return contents.at(row).opcode;
+        case 2:
+            return contents.at(row).operand;
+        case 3:
+            return contents.at(row).comment;
+        default:
+            return "";
     }
 }
 
 void file_parser::print_file() {
 //prints the input file in proper format
     for (int i = 0; i < v_counter; i++) {
-	cout << contents.at(i).label << "\t";
-	cout << contents.at(i).opcode << "\t";
-	cout << contents.at(i).operand << "\t";
-	cout << contents.at(i).comment << endl;
+        cout << contents.at(i).label << "\t";
+        cout << contents.at(i).opcode << "\t";
+        cout << contents.at(i).operand << "\t";
+        cout << contents.at(i).comment << endl;
     }
 }
 

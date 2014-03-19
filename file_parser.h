@@ -52,18 +52,18 @@ class file_parser {
         
     private:
         // your variables and private methods go here
-    string in_file_name;
+        string in_file_name;
     	std::ifstream infile;
     	ofstream outfile;
     	struct parsed_line{
-    			string label;
-    			string opcode;
-    			string operand;
-    			string comment;
-    			parsed_line():  label(" "),
-    					opcode(" "),
-    					operand(" "),
-    					comment(" "){}
+    		string label;
+    		string opcode;
+    		string operand;
+    		string comment;
+    		parsed_line():  label(" "),
+                            opcode(" "),
+                            operand(" "),
+                            comment(" "){}
     	};
     	string line;
     	int v_counter;
