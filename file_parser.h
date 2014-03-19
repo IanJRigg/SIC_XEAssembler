@@ -52,31 +52,30 @@ class file_parser {
         
     private:
         // your variables and private methods go here
-        string in_file_name;
-	std::ifstream infile;
-	ofstream outfile;
-	struct parsed_line{
-			string label;
-			string opcode;
-			string operand;
-			string comment;
-			parsed_line():  label(" "),
-					opcode(" "),
-					operand(" "),
-					comment(" "){}
-		};
-	string line;
-	int v_counter;
+    string in_file_name;
+    	std::ifstream infile;
+    	ofstream outfile;
+    	struct parsed_line{
+    			string label;
+    			string opcode;
+    			string operand;
+    			string comment;
+    			parsed_line():  label(" "),
+    					opcode(" "),
+    					operand(" "),
+    					comment(" "){}
+    	};
+    	string line;
+    	int v_counter;
         stringstream ss_error;
-	vector<parsed_line> contents;
+    	vector<parsed_line> contents;
 
-	void throw_error(string);
-	int is_comment(char);
- 	int is_opcode(char,int);
- 	int is_operand(char,int,int);
- 	int is_label(char, int);
- 	int has_too_many_tokens(char);
-
+    	void throw_error(string);
+    	int is_comment(char);
+     	int is_opcode(char,int);
+     	int is_operand(char,int,int);
+     	int is_label(char, int);
+     	int has_too_many_tokens(char);
 };
 
 #endif  

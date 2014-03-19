@@ -32,7 +32,6 @@ void file_parser::read_file() {
         getline(infile, line);
         int operand_set=0; //Checks if operand has been tokenized
         int opcode_set=0; //Checks if opcode has been tokenized
-        int had_single_quote=0; //Checks if a single quote has been processed
         string comment,label,opcode,operand;
         contents.push_back(parsed_line()); //Creates each row
         for(unsigned int i=0; i< line.size();i++){

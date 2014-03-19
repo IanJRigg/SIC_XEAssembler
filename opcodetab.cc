@@ -45,11 +45,11 @@ opcodetab::opcodetab() {
                         "SVC","TIO","TIXR"};
      //Insert invalid format four items into map                   
     for(int i = 0; i < INVALID_FORMAT_FOUR_NUM; i++) {
-	opcode_format_map.insert(make_pair(invalid_format_four[i],"test"));
+	   opcode_format_map.insert(make_pair(invalid_format_four[i],"test"));
     }
     //Insert opcodes into map		
     for(int i = 0; i < NUMBER_OF_OPCODES; i++) {
-	opcode_map.insert(make_pair(codes[i], make_pair(hex_codes[i], format[i])));
+	   opcode_map.insert(make_pair(codes[i], make_pair(hex_codes[i], format[i])));
     }	
 }
 
@@ -72,13 +72,12 @@ string opcodetab::get_machine_code(string s) {
     }
     //Verify opcode exists in map
     if(opcode_exists(tmp)) {
-
-	string hex = opcode_map.find(tmp)->second.first;
-	return hex;
+	   string hex = opcode_map.find(tmp)->second.first;
+	   return hex;
     }
     else{
-	throw opcode_error_exception("Opcode entered does not exist");
-        }
+	   throw opcode_error_exception("Opcode entered does not exist");
+    }
 }
 
 int opcodetab::get_instruction_size(string s) {
@@ -99,13 +98,13 @@ int opcodetab::get_instruction_size(string s) {
     }
     //Check if the opcode exists in the map
     if(opcode_exists(tmp)) {
-	string size = opcode_map.find(tmp)->second.second;
-	int value = atoi(size.c_str());
+	   string size = opcode_map.find(tmp)->second.second;
+	   int value = atoi(size.c_str());
         value=value+format;
-	return value;
+	   return value;
     }
     else{
-	ss<<"Opcode "<<s<<" does not exist"<<endl;
+	   ss<<"Opcode "<<s<<" does not exist"<<endl;
         throw opcode_error_exception(ss.str());    
     }
 }
@@ -113,15 +112,15 @@ int opcodetab::get_instruction_size(string s) {
 //Method to verify opcode does/does not exist in map
 bool opcodetab::opcode_exists(string s) {
     if(opcode_map.find(s) == opcode_map.end()){
-	return false;
-        }
+	   return false;
+    }
     return true;
 }
 //Method to verify if opcode is not eligible for format 4
 bool opcodetab::invalid_format(string s){
     if(opcode_format_map.find(s) == opcode_format_map.end()){
         return false;
-        }
+    }
     return true;
 }
 
