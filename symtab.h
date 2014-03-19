@@ -9,6 +9,9 @@
 #ifndef SYMTAB_H
 #define SYMTAB_H
 
+#include <string>
+#include <map>
+
 using namespace std;
 
 
@@ -20,7 +23,14 @@ class symtab{
 		// Destructor
 		~symtab();
 
+		bool already_in_symtab(string);
+
+		string get_value(string);
+
+		void insert(string, string);
+
 	private:
+		map<string, string> symbol_table;
 		
 };
 #endif
