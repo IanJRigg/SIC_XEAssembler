@@ -41,8 +41,8 @@ opcodetab::opcodetab() {
 			"2", "3" };
     //Create list of invalid format 4 types                    
     string invalid_format_four[] = {"ADDR","CLEAR","COMPR","DIVR","FIX","FLOAT",
-                        "HIO","MULR","NORM","RMO","SHIFTL","SHIFTR","SIO","SUBR",
-                        "SVC","TIO","TIXR"};
+            "HIO","MULR","NORM","RMO","SHIFTL","SHIFTR","SIO","SUBR","SVC","TIO",
+            "TIXR"};
      //Insert invalid format four items into map                   
     for(int i = 0; i < INVALID_FORMAT_FOUR_NUM; i++) {
 	   opcode_format_map.insert(make_pair(invalid_format_four[i],"test"));
@@ -58,7 +58,7 @@ string opcodetab::get_machine_code(string s) {
     stringstream ss;
     int format =0;//Tracks if opcode is format 4
     //Change incomming string to all uppercase
-    transform(tmp.begin(), tmp.end(),tmp.begin(), ::toupper);
+    tmp= to_upper(tmp);
     
     //Check if opcode is attempting format 4 and if so increment counter
     if(s[0]=='+'){
@@ -85,7 +85,7 @@ int opcodetab::get_instruction_size(string s) {
     int format = 0;
     
     //Transform to uppercase        
-    transform(tmp.begin(), tmp.end(),tmp.begin(), ::toupper);
+    tmp = to_upper(tmp);
     //Check if format 4
     if(s[0]=='+'){
         tmp = tmp.substr(1,tmp.size());
@@ -122,6 +122,11 @@ bool opcodetab::invalid_format(string s){
         return false;
     }
     return true;
+}
+
+string opcodetab::to_upper(string s){
+    transform(s.begin(), s.end(),s.begin(), ::toupper);
+    return s;
 }
 
 
