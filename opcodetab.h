@@ -47,17 +47,18 @@ class opcodetab {
                         
     private:
         // your variables and private methods go here
-	static const string codes[NUMBER_OF_OPCODES];
+        static const string codes[NUMBER_OF_OPCODES];
         static const string hex_codes[NUMBER_OF_OPCODES];
-	static const string format[NUMBER_OF_OPCODES];
+        static const string format[NUMBER_OF_OPCODES];
         static const string invalid_format_four[INVALID_FORMAT_FOUR_NUM];
-	map<string, pair<string, string> > opcode_map;
-	map<string, pair<string, string> >::iterator m_iter;
+        map<string, pair<string, string> > opcode_map;
+        map<string, pair<string, string> >::iterator m_iter;
         map<string,string> opcode_format_map;        
-	map<string,string>::iterator format_iter;
+        map<string,string>::iterator format_iter;
 	
-	bool opcode_exists(string);
+        bool opcode_exists(string);
         bool invalid_format(string);
+        string to_upper(string);
         stringstream ss;
 };
 
