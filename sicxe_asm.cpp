@@ -11,8 +11,7 @@
 using namespace std;
 
 sicxe_asm::sicxe_asm(string filename){
-  file_parser parser(filename);
-  parser.read_file();
+  in_filename = filename;
   symtab symbol_table();
   opcodetab opcode_table();
   lines.reserve(500);
@@ -22,6 +21,8 @@ sicxe_asm::sicxe_asm(string filename){
 sicxe_asm::~sicxe_asm(){}
 
 void sicxe_asm::first_pass(){
+    file_parser parser(in_filename);
+    parser.read_file();
     string opcode, location;
     int location_counter = 0;
     // Account for EQU statments
@@ -38,7 +39,7 @@ void sicxe_asm::first_pass(){
     else
         location_counter = hex_to_int(location);
     location = int_to_hex(location_counter);
-    store_line(location_counter, parser.get_token(row_num, 0), parser.get_token(row_num, 1), parser.get_token(row_num, 2));
+    store_line(location, parser.get_token(row_num, 0), parser.get_token(row_num, 1), parser.get_token(row_num, 2));
     
     row_num++;
     string label;
@@ -55,9 +56,9 @@ void sicxe_asm::first_pass(){
            continue;
         }
         if(label.compare(" ") != 0){
-            if(symbol_table.already_in_symtab(label))
+            if(symbol_table.in_symtab(label))
                 throw_error("Label already exists");
-            symbol_table.insert(label, int_to_hex(location_counter));
+            symbol_table.insert_symbol(label, int_to_hex(location_counter),"");
         }
         try{
             opcode_size = opcode_table.get_instruction_size(opcode);
