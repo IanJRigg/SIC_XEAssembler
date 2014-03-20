@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 
 class sicxe_asm{
@@ -41,18 +42,19 @@ class sicxe_asm{
 					opcode(" "),
 					operand(" "){}
 		};
-		string source_file_name;
 		stringstream ss_error;
 		vector<prog_listing> lines;
-		unsigned int size;
+		unsigned int row_num;
 		symtab symbol_table;
 		opcodetab opcode_table;
 
 		void throw_error(string);
-		void write_to_lines(string, string, string, string);
+		void store_line(string, string, string, string);
 		void print_file();
+		bool is_hex(string);
+		int hex_to_int(string);
 		string validate_address(string);
 		string increment_location_counter(string, unsigned int);
-		string itohs(string);
+		string int_to_hex(int);
 };
 #endif
