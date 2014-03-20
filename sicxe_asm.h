@@ -42,6 +42,7 @@ class sicxe_asm{
 					opcode(" "),
 					operand(" "){}
 		};
+                string in_filename;
 		stringstream ss_error;
 		vector<prog_listing> lines;
 		unsigned int row_num;
