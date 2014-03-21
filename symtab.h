@@ -23,9 +23,6 @@ class symtab{
 		/** Destructor */
 		~symtab();
                 
-                /**Checks if value exists in symbol table*/
-		bool in_symtab(string);
-                
                 /**Returns the key value*/
 		string get_value(string);
                 
@@ -47,6 +44,9 @@ class symtab{
 
 	private:
 		map<string, pair<string,string> > symbol_table;
+                                                
+                /**Checks if value exists in symbol table*/
+		bool in_symtab(string);
 		
 };
 #endif
