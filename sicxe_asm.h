@@ -47,6 +47,9 @@ class sicxe_asm{
                 stringstream stream;
 		vector<prog_listing> lines;
 		unsigned int row_num;
+                unsigned int location_counter;
+                unsigned int base;
+                int starting_address;
 		symtab symbol_table;
 		opcodetab opcode_table;
 
@@ -57,7 +60,7 @@ class sicxe_asm{
 		int hex_to_int(string);
                 string to_uppercase(string);
                 int character_count(string);
-                int process_directives(string,string);
+                int process_directives(string,string,string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
                 int count_resb_operand(string operand);
