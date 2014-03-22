@@ -22,4 +22,4 @@ test    test   test     .testing with number in line        .
 alpha   resw    100
 beta    resw    100
 gamma   resw    100   
-        end     prog    .end of sample program   
+        end     source9   .end of sample program   

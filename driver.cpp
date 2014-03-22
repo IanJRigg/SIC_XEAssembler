@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     file_parser parser(filename);
     parser.read_file();
     parser.print_file();
+    cout<<"parser size is "<<parser.size()<<endl;
     opcodetab table;
     if(!FULL_SIZE){
     cout << "Token at 2,0 is: " << parser.get_token(2,0) << endl;    

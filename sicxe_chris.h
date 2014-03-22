@@ -47,34 +47,28 @@ class sicxe_asm{
 		stringstream ss_error;
                 stringstream stream;
 		vector<prog_listing> lines;
-		int row_num;
-                int location_counter;
-                int base;
+		unsigned int row_num;
+                unsigned int location_counter;
+                unsigned int base;
                 int starting_address;
 		symtab symbol_table;
 		opcodetab opcode_table;
 
+		void throw_error(string);
 		void store_line(string, string, string, string);
 		void print_file();
 		bool is_hex(string);
-                
-                //Conversion functions
 		int hex_to_int(string);
-                string int_to_hex(int);
-                int dec_to_int(string);
-                string format_8(string);
-                
                 string to_uppercase(string);
                 int character_count(string);
                 int process_directives(string,string,string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
                 int count_resb_operand(string operand);
-                
+                int dec_to_int(string);
 		string validate_address(string);
-                int verify_start_location_value(string);
 		string increment_location_counter(string, unsigned int);
-                string error_format(string);
-		
+		int sicxe_asm::string_to_int(string);
+		string sicxe_asm::int_to_hex(int);
 };
 #endif

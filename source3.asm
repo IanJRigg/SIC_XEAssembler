@@ -50,4 +50,4 @@ eta     byte    X'FFFFFE'
 theta	byte	c'eof'
 buffer  RESB    3000
 foo     word    1
-        end     prog    .end of sample program    
+        end     source3    .end of sample program    
