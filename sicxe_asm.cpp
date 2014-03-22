@@ -39,7 +39,7 @@ void sicxe_asm::first_pass(){
     while(to_uppercase(opcode).compare("START") != 0){
          if(opcode.compare(" ")!=0){
                 string tmp_error = "Invalid command prior to program initialization: Opcode:"+opcode;
-                if(process_directives(opcode,parser.get_token(row_num,2),tmp_error) == 0){
+                if(process_directives(opcode,parser.get_token(row_num,2)) == 0){
                     store_line(int_to_hex(location_counter),parser.get_token(row_num,0),opcode, parser.get_token(row_num,2));
                     opcode=parser.get_token(++row_num,1);
                     tmp_error = "";
@@ -84,7 +84,7 @@ void sicxe_asm::first_pass(){
         if(to_uppercase(opcode).compare("END")==0){
             string filecheck = in_filename.substr(0,in_filename.size()-4);
             if(to_uppercase(operand).compare(to_uppercase(filecheck))!=0){
-                throw error_format("Program name does not match");
+                throw error_format("Program name does not match: (Operand: "+operand+") does not match (Filename:"+filecheck+")");
             }
             row_num++;
             break;
@@ -93,15 +93,18 @@ void sicxe_asm::first_pass(){
             symbol_table.insert_symbol(label, int_to_hex(location_counter),"");
         }
         int opcode_size =0;
-        string errorflag;
+        string errorflag="";
         try{
             opcode_size = opcode_table.get_instruction_size(opcode);
         } catch(opcode_error_exception ex){
             errorflag=ex.getMessage();            
         }
 
-        if(errorflag.size()!=0){
-                opcode_size = process_directives(opcode,operand,errorflag);
+        if(errorflag.size()>1){
+                opcode_size = process_directives(opcode,operand);
+                if(opcode_size==-1){
+                    throw error_format(errorflag);
+                };
         }
         location_counter+=opcode_size;
         row_num++;
@@ -185,8 +188,7 @@ int sicxe_asm::character_count(string s){
         c = s[i];
         if(i==1 && c != '\''){
             //Set this to an exception throw of type sicxe
-            cout<<"Count format is bad"<<endl;
-            exit(1);
+            throw error_format("Invalid operand formatting: Operand: "+s);
         } 
         if(c=='\'')continue;
         count++;
@@ -203,7 +205,7 @@ int sicxe_asm::count_byte_operand(string operand){
     if (c.compare("X")==0){
         int tmp = character_count(operand);
         if(tmp%2 !=0){
-            throw error_format("Invalid BYTE operand syntax");
+            throw error_format("Invalid BYTE operand syntax: Operand: "+operand);
         }
         count += tmp;
     }
@@ -229,7 +231,7 @@ int sicxe_asm::count_resb_operand(string operand){
  *Processes any preprocessor directives
  *Returns value to be added to address
 */
-int sicxe_asm::process_directives(string opcode, string operand, string error){
+int sicxe_asm::process_directives(string opcode, string operand){
     int count = 0;
     string tmp = to_uppercase(opcode);
     if(tmp.compare("BYTE") ==0){
@@ -265,7 +267,7 @@ int sicxe_asm::process_directives(string opcode, string operand, string error){
         return count;
     }
     else{   
-        throw error_format(error);        
+        return -1;        
     }
     
 }
@@ -277,7 +279,7 @@ int sicxe_asm::verify_start_location_value(string location){
     }
     
     if(!is_hex(location)){
-        throw error_format("Invalid starting address");
+        throw error_format("Invalid starting address: "+location);
     }
     else{
         count = hex_to_int(location);

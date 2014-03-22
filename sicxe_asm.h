@@ -66,7 +66,7 @@ class sicxe_asm{
                 
                 string to_uppercase(string);
                 int character_count(string);
-                int process_directives(string,string,string);
+                int process_directives(string,string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
                 int count_resb_operand(string operand);

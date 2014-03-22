@@ -34,4 +34,4 @@ delta	word	8
         .
          .
           .
-	end	prog	.end of sample program
+	end	3source	.end of sample program
