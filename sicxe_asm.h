@@ -19,6 +19,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <iomanip>
 
 
 class sicxe_asm{
@@ -67,6 +68,7 @@ class sicxe_asm{
                 int dec_to_int(string);
 		string validate_address(string);
 		string increment_location_counter(string, unsigned int);
-		string int_to_hex(int);
+		int sicxe_asm::string_to_int(string);
+		string sicxe_asm::int_to_hex(int);
 };
 #endif

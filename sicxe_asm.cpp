@@ -24,71 +24,66 @@ sicxe_asm::sicxe_asm(string filename){
 sicxe_asm::~sicxe_asm(){}
 
 void sicxe_asm::first_pass(){
-    file_parser parser(in_filename);
-    try{
-    parser.read_file();
-    }catch(file_parse_exception ex){
-        throw ex.getMessage();
-    }
-    string opcode, location;
-    // Account for EQU statments
-    while((opcode = parser.get_token(row_num, 1)) != "start"){
-         if(opcode.compare(" ") != 0)
-              throw_error("Command listed before program initialization");
-         location = int_to_hex(location_counter);
-         store_line(location, parser.get_token(row_num, 0), opcode, parser.get_token(row_num, 2));
-         row_num++;
-    }
-    location = parser.get_token(row_num, 2); 
-    if(location.find("$") != location.size())
-        location_counter = hex_to_int(location.substr(1, location.size()));
-    else
-        location_counter = hex_to_int(location);
-    location = int_to_hex(location_counter);
-    store_line(location, parser.get_token(row_num, 0), parser.get_token(row_num, 1), parser.get_token(row_num, 2));
-    
-    row_num++;
-    string label;
-    // Account for labels at the beginning
-    int opcode_size;
-    
-    //Verify if this part is valid code!!!
-    unsigned int file_size = (unsigned int) parser.size();
-    while(row_num < file_size){ // Check for "EOF"
-        opcode = parser.get_token(row_num, 1);
-        label = parser.get_token(row_num, 0);
-        string operand = parser.get_token(row_num,2);
-        if(opcode.compare(" ") == 0){
-           // if labels are kept here, insert the label into the symtab
-           store_line(int_to_hex(location_counter), label, opcode, operand);
-           row_num++;
-           continue;
-        }
-        if(label.compare(" ") != 0){
-            symbol_table.insert_symbol(label, int_to_hex(location_counter),"");
-        }
-        string errorflag;
-        try{
-            opcode_size = opcode_table.get_instruction_size(opcode);
-        } catch(opcode_error_exception ex){
-            opcode_size = -1; //Why is this set to -1????
-            errorflag=ex.getMessage();
-        }
+	//in_filename = filename;
+	file_parser parser(in_filename);
+	parser.read_file();
+	string location, label, operand, start_add;
+	int location_counter = 0;
+	int prog_len = 0;
+	string opcode = parser.get_token(row_num, 1);
+	string errorflag;
+	int opcode_size;
+	
+	if(opcode.compare("START") == 0) {
+		operand = parser.get_token(row_num, 2);
+		location_counter = string_to_int(operand.substr(1, operand.size()));
+		location = int_to_hex(location_counter);
+		start_add = location;
+		store_line(location, parser.get_token(row_num, 0),
+			parser.get_token(row_num, 1), operand);
+		row_num++;
+	} 
+	
+	label = parser.get_token(row_num, 0);
+	opcode = parser.get_token(row_num, 1);
+	operand = parser.get_token(row_num, 2);
+	while(opcode.compare("END") != 0) {
+		if(opcode != " ") {
+			if(label != " ") {
+				try {
+					symbol_table.insert_symbol(label,
+						int_to_hex(location_counter), "R");
+				} catch (symtab_exception ex) {
+					throw ex.getMessage();
+				}
+			
+        			try{
+            				opcode_size = opcode_table.get_instruction_size(opcode);
+        			} catch(opcode_error_exception ex){
+            				opcode_size = -1; //Why is this set to -1????
+            				errorflag=ex.getMessage();
+        			}
         
-        if(opcode_size > 0){
-            location_counter += opcode_size;
-        }
-        else{
-            location_counter += process_directives(opcode,operand,errorflag);
-        }
-        store_line(int_to_hex(location_counter), label, opcode, parser.get_token(row_num, 2));
-    
-        
-        
-        
-        row_num++;
-    }
-    print_file();
+        			if(opcode_size > 0){
+            				location_counter += opcode_size;
+        			}
+        			else{
+            				location_counter += process_directives(opcode,operand,errorflag);
+        			}
+			}
+		}
+		location = int_to_hex(location_counter);
+		store_line(location, parser.get_token(row_num, 0),
+			parser.get_token(row_num, 1), operand);
+		
+		row_num++;
+		label = parser.get_token(row_num, 0);
+		opcode = parser.get_token(row_num, 1);
+		operand = parser.get_token(row_num, 2);
+	}
+	location = int_to_hex(location_counter);
+	store_line(location, label, opcode, operand);
+	prog_len = location_counter - hex_to_int(start_add);
 }
 
  //Creates and throws a file_parse_exception
@@ -98,13 +93,20 @@ void sicxe_asm::throw_error(string error){
     throw symtab_exception(ss_error.str());
 }
 
+//Converts a string to an int
+int sicxe_asm::string_to_int(string s){
+	istringstream instr(s);
+	int n;
+	instr >> n;
+	return n;
+}
+
 // Converts a decimal integer to a hexadecimal string.
 string sicxe_asm::int_to_hex(int num){
-    string tmp;
-    stream << hex << num;
-    tmp = to_uppercase(stream.str());
-    stream.str("");//Clearing the stream
-    return validate_address(tmp);
+    stream << setw(5) << setfill('0') << hex << num;
+    string tmp = to_uppercase(stream.str());
+    stream.str("");
+    return tmp;
 }
 
 //Function to convert decimal string to an integer
