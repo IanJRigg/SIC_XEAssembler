@@ -15,5 +15,5 @@ eta     byte    X'FFFFFE'
 foo     word    bsrch
 theta   RESB    1000
 delta   word    8
-        end     prog    .end of sample program
+        end     source6    .end of sample program
         

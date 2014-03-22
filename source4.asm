@@ -16,4 +16,4 @@ addlf   lda     alpha,x   .loop control     xxxxxxx
 alpha   resw    100
 beta    resw    100
 gamma   resw    100   
-        end     prog    .end of sample program   
+        end     source4    .end of sample program   
