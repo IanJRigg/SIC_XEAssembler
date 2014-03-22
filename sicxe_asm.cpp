@@ -288,7 +288,7 @@ int sicxe_asm::verify_start_location_value(string location){
 }
 
 string sicxe_asm::error_format(string message){
-    ss_error<<"at line: "<<row_num+1<<"::"<<message<<endl;
+    ss_error<<"at line: "<<row_num+1<<"::"<<message;
     string tmp = ss_error.str();
     ss_error.str("");
     return tmp;
