@@ -11,20 +11,26 @@
 using namespace std;
 
 sicxe_asm::sicxe_asm(string filename){
-  in_filename = filename;
-  symtab symbol_table();
-  opcodetab opcode_table();
-  lines.reserve(500);
-  row_num = 0;
+    in_filename = filename;
+    symtab symbol_table();
+    opcodetab opcode_table();
+    lines.reserve(500);
+    row_num = 0;
+    location_counter = 0;
+    base = 0;
+    starting_address = 0;
 }
 
 sicxe_asm::~sicxe_asm(){}
 
 void sicxe_asm::first_pass(){
     file_parser parser(in_filename);
+    try{
     parser.read_file();
+    }catch(file_parse_exception ex){
+        throw ex.getMessage();
+    }
     string opcode, location;
-    int location_counter = 0;
     // Account for EQU statments
     while((opcode = parser.get_token(row_num, 1)) != "start"){
          if(opcode.compare(" ") != 0)
@@ -61,21 +67,24 @@ void sicxe_asm::first_pass(){
         if(label.compare(" ") != 0){
             symbol_table.insert_symbol(label, int_to_hex(location_counter),"");
         }
+        string errorflag;
         try{
             opcode_size = opcode_table.get_instruction_size(opcode);
         } catch(opcode_error_exception ex){
             opcode_size = -1; //Why is this set to -1????
+            errorflag=ex.getMessage();
         }
         
         if(opcode_size > 0){
             location_counter += opcode_size;
         }
         else{
+            location_counter += process_directives(opcode,operand,errorflag);
         }
         store_line(int_to_hex(location_counter), label, opcode, parser.get_token(row_num, 2));
     
-                
-        location_counter += process_directives(opcode,operand);
+        
+        
         
         row_num++;
     }
@@ -220,22 +229,49 @@ int sicxe_asm::count_resb_operand(string operand){
     return count;
 }
 
-int sicxe_asm::process_directives(string opcode, string operand){
+/*Takes an opcode and operand as parameters
+ *Processes any preprocessor directives
+ *Returns value to be added to address
+*/
+int sicxe_asm::process_directives(string opcode, string operand, string error){
     int count = 0;
     string tmp = to_uppercase(opcode);
     if(tmp.compare("BYTE") ==0){
-        count += count_byte_operand(operand);        
+        count += count_byte_operand(operand);
+        return count;        
     }
-    if(tmp.compare("RESW")==0){
+    else if(tmp.compare("RESW")==0){
         count += count_resw_operand(operand);
+        return count;
     }
-    if(tmp.compare("WORD")==0){
+    else if(tmp.compare("WORD")==0){
         count += 3;
+        return count;
     }
-    if(tmp.compare("RESB")==0){
+    else if(tmp.compare("RESB")==0){
         count += count_resb_operand(operand);
+        return count;
     }
-    return count;
+    else if(tmp.compare("EQU")==0){
+        //process EQU here
+        return count;
+    }
+    else if(tmp.compare("BASE")==0){
+        //base=string_to_int(operand);
+        return count;
+    }
+    else if(tmp.compare("NOBASE")==0){
+        base = 0;
+        return count;
+    }
+    /*//GET RID OF THIS WHEN REFACTORED!!!!
+    else if(tmp.compare("END")==0){
+        return count;
+    }*/
+    else{   
+        throw error;        
+    }
+    
 }
 
 int main(int argc, char *argv[]){
@@ -249,11 +285,9 @@ int main(int argc, char *argv[]){
     try{
         assembler.first_pass();
     }
-    catch(file_parse_exception ex){
-        cout << ex.getMessage() << endl;
-    }
-    catch(symtab_exception ex){
-        cout << ex.getMessage() << endl;
+    catch(string error){
+        cout<< "Error in sicxe_asm: "<<source_file_name<<" \n"<<error<<endl;
     }
     return 0;
 }
+
