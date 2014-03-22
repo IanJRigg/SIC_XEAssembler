@@ -37,15 +37,19 @@ class sicxe_asm{
 			string opcode;
 			string operand;
 			prog_listing():  line_number(" "),
-					address(" "),
-					label(" "),
-					opcode(" "),
-					operand(" "){}
+					 address(" "),
+					 label(" "),
+					 opcode(" "),
+					 operand(" "){}
 		};
                 string in_filename;
 		stringstream ss_error;
+                stringstream stream;
 		vector<prog_listing> lines;
 		unsigned int row_num;
+                unsigned int location_counter;
+                unsigned int base;
+                int starting_address;
 		symtab symbol_table;
 		opcodetab opcode_table;
 
@@ -54,6 +58,13 @@ class sicxe_asm{
 		void print_file();
 		bool is_hex(string);
 		int hex_to_int(string);
+                string to_uppercase(string);
+                int character_count(string);
+                int process_directives(string,string,string);
+                int count_byte_operand(string);
+                int count_resw_operand(string);
+                int count_resb_operand(string operand);
+                int dec_to_int(string);
 		string validate_address(string);
 		string increment_location_counter(string, unsigned int);
 		string int_to_hex(int);
