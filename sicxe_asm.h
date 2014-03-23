@@ -48,7 +48,7 @@ class sicxe_asm{
                 stringstream stream;
 		vector<prog_listing> lines;
 		int row_num;
-                int location_counter;
+                int int_location_counter;
                 int base;
                 int starting_address;
 		symtab symbol_table;

@@ -16,7 +16,7 @@ sicxe_asm::sicxe_asm(string filename){
     opcodetab opcode_table();
     lines.reserve(500);
     row_num = 0;
-    location_counter = 0;
+    int_location_counter = 0;
     base = 0;
     starting_address = 0;
 }
@@ -31,7 +31,7 @@ void sicxe_asm::first_pass(){
         throw ex.getMessage();
     }
     string opcode = parser.get_token(row_num, 1); 
-    string location;
+    string hex_location_counter;
     
     /* Checks opcode for start command
      * if not found, verifies that opcode is valid prior to initialization
@@ -40,43 +40,41 @@ void sicxe_asm::first_pass(){
          if(opcode.compare(" ")!=0){
                 string tmp_error = "Invalid command prior to program initialization: Opcode:"+opcode;
                 if(process_directives(opcode,parser.get_token(row_num,2)) == 0){
-                    store_line(int_to_hex(location_counter),parser.get_token(row_num,0),opcode, parser.get_token(row_num,2));
+                    store_line(int_to_hex(int_location_counter),parser.get_token(row_num,0),opcode, parser.get_token(row_num,2));
                     opcode=parser.get_token(++row_num,1);
                     tmp_error = "";
                     continue;
                 }
                 throw error_format(tmp_error);
          }     
-         location = int_to_hex(location_counter);
-         store_line(location, parser.get_token(row_num, 0), opcode, parser.get_token(row_num, 2));
+         hex_location_counter = int_to_hex(int_location_counter);
+         store_line(hex_location_counter, parser.get_token(row_num, 0), opcode, parser.get_token(row_num, 2));
          opcode = parser.get_token(++row_num, 1);
     }
     
     /* If opcode is start command then location is replaced with operand value
      * current address is stored on line
      */
-    location = parser.get_token(row_num, 2); 
-    store_line(int_to_hex(location_counter), parser.get_token(row_num, 0), parser.get_token(row_num, 1), parser.get_token(row_num, 2));
+    hex_location_counter = parser.get_token(row_num, 2); 
+    store_line(int_to_hex(int_location_counter), parser.get_token(row_num, 0), parser.get_token(row_num, 1), parser.get_token(row_num, 2));
     /* Checks if start is a hex declaration with $ symbol
      * if not operand is taken for starting address value
      */
-    location_counter = verify_start_location_value(location);
+    int_location_counter = verify_start_location_value(hex_location_counter);
     
-    location = int_to_hex(location_counter);
+    hex_location_counter = int_to_hex(int_location_counter);
     
     row_num++;
     string label;
     // Account for labels at the beginning
-   
-    
-    //Verify if this part is valid code!!!
+
     int file_size = parser.size();
     while(row_num < file_size){ // Check for "EOF"
         
         opcode = parser.get_token(row_num, 1);
         label = parser.get_token(row_num, 0);
         string operand = parser.get_token(row_num,2);
-        store_line(int_to_hex(location_counter), label, opcode, operand);
+        store_line(int_to_hex(int_location_counter), label, opcode, operand);
         if(opcode.compare(" ") == 0){
            row_num++;
            continue;
@@ -90,7 +88,8 @@ void sicxe_asm::first_pass(){
             break;
         }
         if(label.compare(" ") != 0){
-            symbol_table.insert_symbol(label, int_to_hex(location_counter),"");
+            //Verify case for this call TODO
+            symbol_table.insert_symbol(label, int_to_hex(int_location_counter),"");
         }
         int opcode_size =0;
         string errorflag="";
@@ -106,7 +105,7 @@ void sicxe_asm::first_pass(){
                     throw error_format(errorflag);
                 };
         }
-        location_counter+=opcode_size;
+        int_location_counter+=opcode_size;
         row_num++;
     }
     print_file();
@@ -142,8 +141,7 @@ void sicxe_asm::store_line(string address, string label, string opcode, string o
 void sicxe_asm::print_file() {
 //prints the input file in proper format
     for(int i = 0; i < row_num; i++) {
-        int tmp = i+1;
-        cout <<right<<setw(8)<<tmp/*lines.at(i).line_number*/ << " ";        
+        cout <<right<<setw(8)<<i+1<< " ";        
         cout << format_8(lines.at(i).address)<<" ";
         cout << format_8(lines.at(i).label) << " ";
         cout << format_8(lines.at(i).opcode) << " ";
@@ -159,14 +157,13 @@ string sicxe_asm::format_8(string x){
 }
 
 bool sicxe_asm::is_hex(string s){
-  int length = s.length();
-  char * hex_string = new char(length);
-  strcpy(hex_string, s.c_str());
-  for(int i = 0; i < length; i++){
-      if(!isxdigit(hex_string[i])) return false;  
+  for(unsigned int i = 0; i < s.size(); i++){
+      if(!isxdigit(s[i])) return false;  
   }
   return true;
 }
+
+
 int sicxe_asm::hex_to_int(string s){
      int value;
      sscanf(s.c_str(),"%x",&value);
@@ -204,7 +201,7 @@ int sicxe_asm::count_byte_operand(string operand){
         count += character_count(operand);
     if (c.compare("X")==0){
         int tmp = character_count(operand);
-        if(tmp%2 !=0){
+        if(tmp%2 !=0 || !is_hex(operand.substr(2,operand.size()-3))){
             throw error_format("Invalid BYTE operand syntax: Operand: "+operand);
         }
         count += tmp;
@@ -272,17 +269,17 @@ int sicxe_asm::process_directives(string opcode, string operand){
     
 }
 
-int sicxe_asm::verify_start_location_value(string location){
+int sicxe_asm::verify_start_location_value(string hex_location_counter){
     int count=0;
-    if(location[0]=='$'){
-        location = location.substr(1,location.size());
+    if(hex_location_counter[0]=='$'){
+        hex_location_counter = hex_location_counter.substr(1,hex_location_counter.size());
     }
     
-    if(!is_hex(location)){
-        throw error_format("Invalid starting address: "+location);
+    if(!is_hex(hex_location_counter)){
+        throw error_format("Invalid starting address: "+hex_location_counter);
     }
     else{
-        count = hex_to_int(location);
+        count = hex_to_int(hex_location_counter);
     }
     return count;
 }

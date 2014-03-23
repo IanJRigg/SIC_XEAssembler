@@ -11,7 +11,8 @@ addlf   lda     alpha,x   .loop control
         sta     gamma,x                         
         addr    s,x
         compr   x,t 
-        jlt     addlp   
+        jlt     addlp 
+testthis  
         .
 . storage allocation section        
 alpha   resw    100
