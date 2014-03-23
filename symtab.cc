@@ -14,7 +14,11 @@ symtab::symtab(){}
 symtab::~symtab() {}
 
 bool symtab::in_symtab(string key){
-    return (symbol_table.find(key) != symbol_table.end());
+    symbol_table_iterator=symbol_table.find(key);
+    if(symbol_table_iterator == symbol_table.end()){
+        return false;
+    }
+    return true;
 }
 
 /**To be defined in project 4*/
@@ -30,8 +34,9 @@ string symtab::get_value(string key){
 }
 
 void symtab::insert_symbol(string key, string value, string flag){
-    if(in_symtab(key))
-        throw symtab_exception("Unable to insert, key exists in symtab");
+    if(in_symtab(key)){
+        throw symtab_exception("Unable to insert, key exists in symtab::Key: "+key);
+    }
     symbol_table[key] = pair<string,string> (value,flag);
 }
 

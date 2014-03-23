@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    prog1 : sicxe_asm.h
+    prog3 : sicxe_asm.h
     CS530, Spring 2014
     Team Florida
 */
@@ -17,6 +17,7 @@
 #include "symtab_exception.h"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <cstdlib>
 #include <iomanip>
@@ -43,6 +44,7 @@ class sicxe_asm{
 					 opcode(" "),
 					 operand(" "){}
 		};
+                string lis_filename;
                 string in_filename;
 		stringstream ss_error;
                 stringstream stream;
@@ -51,22 +53,24 @@ class sicxe_asm{
                 int int_location_counter;
                 int base;
                 int starting_address;
+                int prog_len;
 		symtab symbol_table;
 		opcodetab opcode_table;
 
 		void store_line(string, string, string, string);
 		void print_file();
+                void write_file();
 		bool is_hex(string);
                 
                 //Conversion functions
 		int hex_to_int(string);
                 string int_to_hex(int);
                 int dec_to_int(string);
-                string format_8(string);
+                string format_7(string);
                 
                 string to_uppercase(string);
                 int character_count(string);
-                int process_directives(string,string);
+                int process_directives(string,string,string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
                 int count_resb_operand(string operand);
