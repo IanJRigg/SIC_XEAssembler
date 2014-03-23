@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    symtab.cc
+    Prog 3: symtab.cc
     CS530, Spring 2014
 */
 #include "symtab.h"

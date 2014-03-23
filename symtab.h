@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    prog3 : symtab.h
+    Prog3 : symtab.h
     CS530, Spring 2014
     Team Florida
 */

@@ -44,7 +44,7 @@ void file_parser::read_file() {
                 if(!isalpha(line[i])&&!iscntrl(line[i])){
                     throw_error(" 'Labels cannot start with a number'");
                 }
-                while(!isspace(line[i])){
+                while(!isspace(line[i])&& i<line.size()){
 		    //Check to make sure contents are only alphanumeric or the null character
                     if(!isalnum(line[i])&&line[i]!=0){
                         throw_error(" 'Labels can only contain letters and numbers'");
@@ -62,7 +62,7 @@ void file_parser::read_file() {
             }
             if(is_opcode(line[i],opcode_set)){
                 int start = i;
-                while(!isspace(line[i])&&!iscntrl(line[i])){
+                while(!isspace(line[i])&&!iscntrl(line[i]) && i<line.size()){
                     if(line[i]=='.')
                         throw_error(" 'Invalid character in opcode' ");
                     i++;                                
@@ -75,9 +75,9 @@ void file_parser::read_file() {
             if(is_operand(line[i],opcode_set,operand_set)){
                 int start = i;
                 while(!isspace(line[i])&&!iscntrl(line[i])){
-                    if(line[i]=='\''){
+                    if(line[i]=='\'' && i<line.size()){
                         i++;
-                        while(line[i]!='\''){
+                        while(line[i]!='\'' && i<line.size()){
                             i++;
                         }
                         i++;

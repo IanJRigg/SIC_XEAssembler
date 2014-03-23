@@ -23,6 +23,7 @@
 #include <iomanip>
 
 
+#define WORD_SIZE 3
 class sicxe_asm{
 	public: 
 		sicxe_asm(string);
@@ -60,23 +61,27 @@ class sicxe_asm{
 		void store_line(string, string, string, string);
 		void print_file();
                 void write_file();
+                
+                //Validation functions
 		bool is_hex(string);
+                bool is_num(string);
+                int verify_start_location_value(string);
                 
                 //Conversion functions
 		int hex_to_int(string);
                 string int_to_hex(int);
                 int dec_to_int(string);
                 string format_7(string);
-                
+                int string_to_int(string s);                
                 string to_uppercase(string);
+                                
                 int character_count(string);
                 int process_directives(string,string,string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
                 int count_resb_operand(string operand);
                 
-		string validate_address(string);
-                int verify_start_location_value(string);
+		
 		string increment_location_counter(string, unsigned int);
                 string error_format(string);
 		
