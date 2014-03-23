@@ -59,12 +59,13 @@ void sicxe_asm::first_pass(){
      */
     hex_location_counter = parser.get_token(row_num, 2); 
     store_line(int_to_hex(int_location_counter), parser.get_token(row_num, 0), parser.get_token(row_num, 1), parser.get_token(row_num, 2));
+    
     /* Checks if start is a hex declaration with $ symbol
      * if not operand is taken for starting address value
      */
     int_location_counter = verify_start_location_value(hex_location_counter);
     starting_address = int_location_counter;
-    hex_location_counter = int_to_hex(int_location_counter);
+    //hex_location_counter = int_to_hex(int_location_counter);
     row_num++;
     string label;
     // Account for labels at the beginning
@@ -75,7 +76,8 @@ void sicxe_asm::first_pass(){
         opcode = parser.get_token(row_num, 1);
         label = parser.get_token(row_num, 0);
         string operand = parser.get_token(row_num,2);
-        store_line(int_to_hex(int_location_counter), label, opcode, operand);
+        hex_location_counter = int_to_hex(int_location_counter);
+        store_line(hex_location_counter, label, opcode, operand);
         if(opcode.compare(" ") == 0){
            row_num++;
            continue;
@@ -91,7 +93,7 @@ void sicxe_asm::first_pass(){
         
         if(label.compare(" ") != 0 && to_uppercase(opcode).compare("EQU")!=0){
             //Verify case for this call TODO
-            symbol_table.insert_symbol(label, int_to_hex(int_location_counter),"R");
+            symbol_table.insert_symbol(label, hex_location_counter,"R");
         }
         int opcode_size =0;
         string errorflag="";
@@ -122,9 +124,14 @@ string sicxe_asm::int_to_hex(int num){
     return tmp;
 }
 
-//Function to convert decimal string to an integer
+/*Function to convert decimal string to an integer
+* If parameter is invalid for conversion it throws an error
+*/
 int sicxe_asm::dec_to_int(string s){
-    int value;
+    if(!is_num(s)){
+        throw error_format("Invalid decimal conversion candidate::"+s);
+    }
+    int value;    
     sscanf(s.c_str(),"%d",&value);
     return value;
 }
@@ -141,8 +148,8 @@ void sicxe_asm::store_line(string address, string label, string opcode, string o
     lines.push_back(line);
 }
 
+/*Prints the listing file to the command line*/
 void sicxe_asm::print_file() {
-//prints the input file in proper format
     cout<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
     cout<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
     cout<<setw(14)<<"Opcode"<<endl;
@@ -157,6 +164,7 @@ void sicxe_asm::print_file() {
     }
 }
 
+/*Writes the listing file to a .lis file*/
 void sicxe_asm::write_file() {
 //prints the listing file in proper format
     lis_filename = in_filename.substr(0,in_filename.size()-4);
@@ -164,22 +172,23 @@ void sicxe_asm::write_file() {
     ofstream listing;
     listing.open(lis_filename.c_str(),ios::out);
     if(listing.is_open()){
-    listing<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
-    listing<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
-    listing<<setw(14)<<"Opcode"<<endl;
-    listing<<setw(7)<<"====="<<setw(12)<<"======="<<setw(10)<<"====="<<setw(14)<<"======";
-    listing<<setw(14)<<"======="<<endl;
-    for(int i = 0; i < row_num; i++) {
-        listing << setw(7)<<i+1<< " ";        
-        listing << setw(11)<<format_7(lines.at(i).address)<<" ";
-        listing << setw(9)<<format_7(lines.at(i).label) << " ";
-        listing << setw(13)<<format_7(lines.at(i).opcode) << " ";
-        listing << setw(13)<<lines.at(i).operand << endl;
-    }
+        listing<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
+        listing<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
+        listing<<setw(14)<<"Opcode"<<endl;
+        listing<<setw(7)<<"====="<<setw(12)<<"======="<<setw(10)<<"====="<<setw(14)<<"======";
+        listing<<setw(14)<<"======="<<endl;
+        for(int i = 0; i < row_num; i++) {
+          listing << setw(7)<<i+1<< " ";        
+          listing << setw(11)<<format_7(lines.at(i).address)<<" ";
+          listing << setw(9)<<format_7(lines.at(i).label) << " ";//Correct this since labels can be 8
+          listing << setw(13)<<format_7(lines.at(i).opcode) << " ";
+          listing << setw(13)<<lines.at(i).operand << endl;
+        }
     }
     listing.close();
 }
 
+/*Formats a line to fill 7 spaces*/
 string sicxe_asm::format_7(string x){
     stream<<setw(7)<<setfill(' ')<<x;
     string tmp = stream.str();
@@ -187,6 +196,7 @@ string sicxe_asm::format_7(string x){
     return tmp;
 }
 
+/*Verifies if given string is a hexidecimal value*/
 bool sicxe_asm::is_hex(string s){
   for(unsigned int i = 0; i < s.size(); i++){
       if(!isxdigit(s[i])) return false;  
@@ -194,7 +204,15 @@ bool sicxe_asm::is_hex(string s){
   return true;
 }
 
+/*Verifies if the given string is a decimal number*/
+bool sicxe_asm::is_num(string s){
+  for(unsigned int i = 0; i < s.size(); i++){
+      if(!isdigit(s[i])) return false;  
+  }
+  return true;
+}
 
+/*Converts a string from hexidecimal to integer*/
 int sicxe_asm::hex_to_int(string s){
      int value;
      sscanf(s.c_str(),"%x",&value);
@@ -207,15 +225,18 @@ string sicxe_asm::to_uppercase(string s){
     return s;
 }
 
+/*Counts the number of characters for a BYTE operand*/
 int sicxe_asm::character_count(string s){
     int count=0;
     char c;
+    if(s[s.size()-1]!= '\''){
+        throw error_format("Invalid operand formatting::Operand: "+s);
+    }
     /**Setting i = 1 to skip c or x and only count characters
      * between the quotes*/
     for(unsigned int i = 1;i<s.size();i++){
         c = s[i];
         if(i==1 && c != '\''){
-            //Set this to an exception throw of type sicxe
             throw error_format("Invalid operand formatting: Operand: "+s);
         } 
         if(c=='\'')continue;
@@ -228,23 +249,26 @@ int sicxe_asm::character_count(string s){
 int sicxe_asm::count_byte_operand(string operand){
     int count = 0;
     string c = to_uppercase(operand.substr(0,1));
-    if(c.compare("C")==0)
+    if(c.compare("C")==0){
         count += character_count(operand);
-    if (c.compare("X")==0){
+        return count;
+    }
+    else if (c.compare("X")==0){
         int tmp = character_count(operand);
-        if(tmp%2 !=0 || !is_hex(operand.substr(2,operand.size()-3))){
+        /*If not an even number of characters or if not a hexidecimal value, throw*/
+        if(tmp%2 !=0 && is_hex(operand.substr(2,operand.size()-3))){
             throw error_format("Invalid BYTE operand syntax: Operand: "+operand);
         }
         count += tmp;
+        return count;
     }
-    return count;
+    else
+        throw error_format("Invalid BYTE operand syntax::Operand: "+operand);
 }
 
-//Need to add error checking to this function!!!TODO
 int sicxe_asm::count_resw_operand(string operand){
     int count = 0;
-    //set constant variable to word size 3 and replace TODO
-    count += dec_to_int(operand)*3;
+    count += dec_to_int(operand)*WORD_SIZE;
     return count;
 }
 
@@ -271,18 +295,23 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         return count;
     }
     else if(tmp.compare("WORD")==0){
-        count += 3;
+        count += WORD_SIZE;
         return count;
     }
     else if(tmp.compare("RESB")==0){
         count += count_resb_operand(operand);
         return count;
     }
+    //Handle EQU cases
     else if(tmp.compare("EQU")==0){
         try{
+        //If operand is a constant number, insert as Absolute value
         if(is_hex(operand)){
             symbol_table.insert_symbol(label, operand,"A"); 
         }
+        //else if(){
+        
+        //}
         else{
             throw error_format("Invalid operand for EQU command::Operand: "+operand);        
         }  
@@ -294,45 +323,63 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         
         return count;
     }
+    //Set Base variable
     else if(tmp.compare("BASE")==0){
-        //base=string_to_int(operand);
+        base=string_to_int(operand);
         return count;
     }
+    //Clear Base variable
     else if(tmp.compare("NOBASE")==0){
         base = 0;
         return count;
     }
-    //GET RID OF THIS WHEN REFACTORED!!!!
+    //Do nothing for END
     else if(tmp.compare("END")==0){
         return count;
     }
+    //Invalid preprocessor directive
     else{   
         return -1;        
     }
     
 }
 
-int sicxe_asm::verify_start_location_value(string hex_location_counter){
-    int count=0;
-    if(hex_location_counter[0]=='$'){
-        hex_location_counter = hex_location_counter.substr(1,hex_location_counter.size());
+/*Processes incomming starting address value
+* If value is designated as hex it returns the hex equivalent value in int
+* Otherwise returns the integer value of the variable
+*/
+int sicxe_asm::verify_start_location_value(string start_location_value){
+    if(start_location_value[0]=='$'){
+        start_location_value = start_location_value.substr(1,start_location_value.size());
+        if(!is_hex(start_location_value)){
+            throw error_format("Invalid starting address: "+start_location_value);
+        }
+        return hex_to_int(start_location_value); //Returns the hexidecimal value
     }
-    
-    if(!is_hex(hex_location_counter)){
-        throw error_format("Invalid starting address: "+hex_location_counter);
+    else if(is_num(start_location_value)){
+            return dec_to_int(start_location_value);        
     }
-    else{
-        count = hex_to_int(hex_location_counter);
-    }
-    return count;
+    else
+        throw error_format("Invalid starting address: "+start_location_value); 
 }
 
+/*Takes in a string message and returns the line number concat with message
+* to form a throwable message*/
 string sicxe_asm::error_format(string message){
     ss_error<<"at line: "<<row_num+1<<"::"<<message;
     string tmp = ss_error.str();
     ss_error.str("");
     return tmp;
 }
+
+/* Converts string variables into integers */
+int sicxe_asm::string_to_int(string s){
+    istringstream instr(s);
+    int n;
+    instr >> n;
+    return n;
+ }
+
 
 int main(int argc, char *argv[]){
     if(argc != 2){
