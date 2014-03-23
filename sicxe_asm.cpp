@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    prog1 : sicxe_asm.cpp
+    prog3 : sicxe_asm.cpp
     CS530, Spring 2014
     Team Florida
 */
@@ -19,6 +19,7 @@ sicxe_asm::sicxe_asm(string filename){
     int_location_counter = 0;
     base = 0;
     starting_address = 0;
+    prog_len = 0;
 }
 
 sicxe_asm::~sicxe_asm(){}
@@ -30,6 +31,7 @@ void sicxe_asm::first_pass(){
     }catch(file_parse_exception ex){
         throw ex.getMessage();
     }
+    
     string opcode = parser.get_token(row_num, 1); 
     string hex_location_counter;
     
@@ -38,8 +40,8 @@ void sicxe_asm::first_pass(){
      * stores information and proceeds to next line*/
     while(to_uppercase(opcode).compare("START") != 0){
          if(opcode.compare(" ")!=0){
-                string tmp_error = "Invalid command prior to program initialization: Opcode:"+opcode;
-                if(process_directives(opcode,parser.get_token(row_num,2)) == 0){
+                string tmp_error = "Invalid command prior to program initialization: Opcode:"+opcode;                
+                if(process_directives(parser.get_token(row_num,0),opcode,parser.get_token(row_num,2)) == 0){
                     store_line(int_to_hex(int_location_counter),parser.get_token(row_num,0),opcode, parser.get_token(row_num,2));
                     opcode=parser.get_token(++row_num,1);
                     tmp_error = "";
@@ -61,9 +63,8 @@ void sicxe_asm::first_pass(){
      * if not operand is taken for starting address value
      */
     int_location_counter = verify_start_location_value(hex_location_counter);
-    
+    starting_address = int_location_counter;
     hex_location_counter = int_to_hex(int_location_counter);
-    
     row_num++;
     string label;
     // Account for labels at the beginning
@@ -87,9 +88,10 @@ void sicxe_asm::first_pass(){
             row_num++;
             break;
         }
-        if(label.compare(" ") != 0){
+        
+        if(label.compare(" ") != 0 && to_uppercase(opcode).compare("EQU")!=0){
             //Verify case for this call TODO
-            symbol_table.insert_symbol(label, int_to_hex(int_location_counter),"");
+            symbol_table.insert_symbol(label, int_to_hex(int_location_counter),"R");
         }
         int opcode_size =0;
         string errorflag="";
@@ -98,9 +100,8 @@ void sicxe_asm::first_pass(){
         } catch(opcode_error_exception ex){
             errorflag=ex.getMessage();            
         }
-
         if(errorflag.size()>1){
-                opcode_size = process_directives(opcode,operand);
+                opcode_size = process_directives(label,opcode,operand);
                 if(opcode_size==-1){
                     throw error_format(errorflag);
                 };
@@ -108,7 +109,9 @@ void sicxe_asm::first_pass(){
         int_location_counter+=opcode_size;
         row_num++;
     }
+    prog_len = int_location_counter - starting_address;
     print_file();
+    write_file();
 }
 
 // Converts a decimal integer to a hexadecimal string.
@@ -140,17 +143,45 @@ void sicxe_asm::store_line(string address, string label, string opcode, string o
 
 void sicxe_asm::print_file() {
 //prints the input file in proper format
+    cout<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
+    cout<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
+    cout<<setw(14)<<"Opcode"<<endl;
+    cout<<setw(7)<<"====="<<setw(12)<<"======="<<setw(10)<<"====="<<setw(14)<<"======";
+    cout<<setw(14)<<"======="<<endl;
     for(int i = 0; i < row_num; i++) {
-        cout <<right<<setw(8)<<i+1<< " ";        
-        cout << format_8(lines.at(i).address)<<" ";
-        cout << format_8(lines.at(i).label) << " ";
-        cout << format_8(lines.at(i).opcode) << " ";
-        cout << lines.at(i).operand << endl;
+        cout << setw(7)<<i+1<< " ";        
+        cout << setw(11)<<format_7(lines.at(i).address)<<" ";
+        cout << setw(9)<<format_7(lines.at(i).label) << " ";
+        cout << setw(13)<<format_7(lines.at(i).opcode) << " ";
+        cout << setw(13)<<lines.at(i).operand << endl;
     }
 }
 
-string sicxe_asm::format_8(string x){
-    stream<<setw(8)<<setfill(' ')<<x;
+void sicxe_asm::write_file() {
+//prints the listing file in proper format
+    lis_filename = in_filename.substr(0,in_filename.size()-4);
+    lis_filename = lis_filename+".lis";
+    ofstream listing;
+    listing.open(lis_filename.c_str(),ios::out);
+    if(listing.is_open()){
+    listing<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
+    listing<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
+    listing<<setw(14)<<"Opcode"<<endl;
+    listing<<setw(7)<<"====="<<setw(12)<<"======="<<setw(10)<<"====="<<setw(14)<<"======";
+    listing<<setw(14)<<"======="<<endl;
+    for(int i = 0; i < row_num; i++) {
+        listing << setw(7)<<i+1<< " ";        
+        listing << setw(11)<<format_7(lines.at(i).address)<<" ";
+        listing << setw(9)<<format_7(lines.at(i).label) << " ";
+        listing << setw(13)<<format_7(lines.at(i).opcode) << " ";
+        listing << setw(13)<<lines.at(i).operand << endl;
+    }
+    }
+    listing.close();
+}
+
+string sicxe_asm::format_7(string x){
+    stream<<setw(7)<<setfill(' ')<<x;
     string tmp = stream.str();
     stream.str("");
     return tmp;
@@ -228,7 +259,7 @@ int sicxe_asm::count_resb_operand(string operand){
  *Processes any preprocessor directives
  *Returns value to be added to address
 */
-int sicxe_asm::process_directives(string opcode, string operand){
+int sicxe_asm::process_directives(string label, string opcode, string operand){
     int count = 0;
     string tmp = to_uppercase(opcode);
     if(tmp.compare("BYTE") ==0){
@@ -248,7 +279,19 @@ int sicxe_asm::process_directives(string opcode, string operand){
         return count;
     }
     else if(tmp.compare("EQU")==0){
-        //process EQU here
+        try{
+        if(is_hex(operand)){
+            symbol_table.insert_symbol(label, operand,"A"); 
+        }
+        else{
+            throw error_format("Invalid operand for EQU command::Operand: "+operand);        
+        }  
+        }catch(symtab_exception symex){
+            throw error_format(symex.getMessage());
+        }catch(string other_ex){
+            throw other_ex;
+        }
+        
         return count;
     }
     else if(tmp.compare("BASE")==0){
