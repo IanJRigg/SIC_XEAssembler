@@ -2,7 +2,7 @@
 .test program for proj1-4
 .This file should assemble without errors
 
-prog    start   0    .start of sample program
+source6    start   0    .start of sample program
 bsrch   EQU     14
 OFFB    EQU     8
         BASE    delta

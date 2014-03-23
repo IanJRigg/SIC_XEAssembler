@@ -3,8 +3,8 @@
 .This program should assemble correctly
 .
 .
-    
-prog    start   $1000    .start of sample program
+
+source1    start   $1000    .start of sample program
         lds     #3
         ldt     #300
         ldx     #0
