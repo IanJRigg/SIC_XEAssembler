@@ -59,7 +59,6 @@ class opcodetab {
         bool opcode_exists(string);
         bool invalid_format(string);
         string to_upper(string);
-        stringstream ss;
 };
 
 #endif

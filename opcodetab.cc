@@ -55,7 +55,6 @@ opcodetab::opcodetab() {
 
 string opcodetab::get_machine_code(string s) {
     string tmp = s;
-    stringstream ss;
     int format =0;//Tracks if opcode is format 4
     //Change incomming string to all uppercase
     tmp= to_upper(tmp);
@@ -67,8 +66,8 @@ string opcodetab::get_machine_code(string s) {
     }
     //Check if formatting has been adjusted, if so verify code is valid for format 4
     if(format==1 && invalid_format(tmp)){
-        ss<<"Opcode "<<s<<": not valid for format 4"<<endl;
-        throw opcode_error_exception(ss.str());    
+        
+        throw opcode_error_exception("Opcode "+s+": not valid for format 4");    
     }
     //Verify opcode exists in map
     if(opcode_exists(tmp)) {
@@ -76,14 +75,13 @@ string opcodetab::get_machine_code(string s) {
 	   return hex;
     }
     else{
-	   throw opcode_error_exception("Opcode entered does not exist");
+	   throw opcode_error_exception("Opcode "+s+" does not exist");
     }
 }
 
 int opcodetab::get_instruction_size(string s) {
     string tmp = s;
-    int format = 0;
-    
+    int format = 0;    
     //Transform to uppercase        
     tmp = to_upper(tmp);
     //Check if format 4
@@ -93,8 +91,7 @@ int opcodetab::get_instruction_size(string s) {
     }
     //Check if valid format 4
     if(format==1 && invalid_format(tmp)){
-        ss<<"Opcode "<<s<<": not valid for format 4"<<endl;
-        throw opcode_error_exception(ss.str());
+        throw opcode_error_exception("Opcode "+s+": not valid for format 4");
     }
     //Check if the opcode exists in the map
     if(opcode_exists(tmp)) {
@@ -104,8 +101,7 @@ int opcodetab::get_instruction_size(string s) {
 	   return value;
     }
     else{
-	   ss<<"Opcode "<<s<<" does not exist"<<endl;
-        throw opcode_error_exception(ss.str());    
+	throw opcode_error_exception("Opcode "+s+" does not exist");    
     }
 }
 
