@@ -17,7 +17,7 @@ sicxe_asm::sicxe_asm(string filename){
     lines.reserve(500);
     row_num = 0;
     int_location_counter = 0;
-    base = 0;
+    base = "-1";
     starting_address = 0;
     prog_len = 0;
     assemble();
@@ -37,7 +37,6 @@ void sicxe_asm::assemble() {
 		exit(1);
 	}
 }
-	
 
 /************************************************************
  *Insert comments here describing the first_pass() algorithm*
@@ -47,60 +46,42 @@ void sicxe_asm::first_pass(){
     try{
     parser.read_file();
     }catch(file_parse_exception ex){
-        throw ex.getMessage();
-    }
-    
-    string opcode = parser.get_token(row_num, 1); 
-    string hex_location_counter;
-    
+        throw error_format(ex.getMessage());
+    }    
+    opcode = parser.get_token(row_num, 1); 
+    string hex_location_counter;    
     /********************************************************************** 
      *Checks opcode for start command                                     *
      * if not found, verifies that opcode is valid prior to initialization*
      * stores information and proceeds to next line                       *
      **********************************************************************/
     while(to_uppercase(opcode).compare("START") != 0){
-         if(opcode.compare(" ")!=0){
-                string tmp_error = "Invalid command prior to program initialization: Opcode:"+opcode;                
-                /*if(process_directives(parser.get_token(row_num,0),opcode,parser.get_token(row_num,2)) != -1){
-		    if(opcode.compare("EQU") != 0) {
-		    	tmp_error = "Illegal assembler directive before start.";
-			throw error_format(tmp_error);
-		    }
-		    	
-                    store_line(int_to_hex(int_location_counter),parser.get_token(row_num,0),opcode, parser.get_token(row_num,2));
-                    opcode=parser.get_token(++row_num,1);
-                    tmp_error = "";
-                    continue;
-                }*/
-                throw error_format(tmp_error);
-         }     
          hex_location_counter = int_to_hex(int_location_counter);
-         store_line(hex_location_counter, parser.get_token(row_num, 0), opcode, parser.get_token(row_num, 2));
+         store_line(hex_location_counter, " ", " ", " ");
+         try{
          opcode = parser.get_token(++row_num, 1);
-    }
-    
+         }catch(file_parse_exception fex){
+            throw error_format(fex.getMessage());
+         }
+    }    
     /* If opcode is start command then location is replaced with operand value
      * current address is stored on line
      */
     hex_location_counter = parser.get_token(row_num, 2);
-    string label = parser.get_token(row_num,0);
-    string operand = parser.get_token(row_num,2); 
+    label = parser.get_token(row_num,0);
+    operand = parser.get_token(row_num,2);
+    start_name = to_uppercase(label);
     store_line(int_to_hex(int_location_counter), label, opcode, operand);
-
     
-    
-    if(process_directives(label,opcode,operand)!=0){
-        throw error_format("Encountered unexpected case");
-    }
-    /* Checks if start is a hex declaration with $ symbol
-     * if not operand is taken for starting address value
-     */
+    /***************************************************** 
+     *Checks if start is a hex declaration with $ symbol *
+     * if not operand is taken for starting address value*
+     *****************************************************/
     int_location_counter = verify_start_location_value(hex_location_counter);
     starting_address = int_location_counter;
     row_num++;
     int file_size = parser.size();
-    while(row_num < file_size){ /* Check for "EOF"*/
-        
+    while(row_num < file_size){         
         opcode = parser.get_token(row_num, 1);
         label = parser.get_token(row_num, 0);
         operand = parser.get_token(row_num,2);
@@ -111,14 +92,14 @@ void sicxe_asm::first_pass(){
            continue;
         }
         if(to_uppercase(opcode).compare("END")==0){
-            string filecheck = in_filename.substr(0,in_filename.size()-4);
-            if(to_uppercase(operand).compare(to_uppercase(filecheck))!=0){
-                throw error_format("Program name does not match: (Operand: "+operand+") does not match (Filename:"+filecheck+")");
-            }
+            if(operand.compare(" ")!=0){
+                if(to_uppercase(operand).compare(to_uppercase(start_name))!=0){
+                    throw error_format("Program end name does not match:(Operand: "+operand+") does not match start label (Label:"+start_name+")");
+                }
+            }              
             row_num++;
             break;
-        }
-        
+        }        
         if(label.compare(" ") != 0 && to_uppercase(opcode).compare("EQU")!=0){
             try{
             symbol_table.insert_symbol(label, hex_location_counter,"R");
@@ -145,9 +126,6 @@ void sicxe_asm::first_pass(){
     prog_len = int_location_counter - starting_address;
     print_file();
     write_file();
-    cout << int_location_counter << endl;
-    cout << starting_address << endl;
-    cout << prog_len << endl;
 }
 
 /*****************************************************
@@ -320,7 +298,7 @@ int sicxe_asm::count_byte_operand(string operand){
         if(tmp%2 !=0 && is_hex(operand.substr(2,operand.size()-3))){
             throw error_format("Invalid BYTE operand syntax: Operand: "+operand);
         }
-        count += tmp;
+        count += tmp/2;
         return count;
     }
     else
@@ -354,24 +332,13 @@ int sicxe_asm::count_resb_operand(string operand){
  *******************************************/
 int sicxe_asm::process_directives(string label, string opcode, string operand){
     int count = 0;
-    string tmp = to_uppercase(opcode);
-    
+    string tmp = to_uppercase(opcode);  
     
     //If start has already been declared, throw and error
     if(tmp.compare("START")==0){
-        string check_label =in_filename.substr(0,in_filename.size()-4);
-        if(label.compare(check_label)!=0){
-            throw error_format("START label: "+label+" does not match program name:" +check_label);
-        }
-        if(starting_address !=0){
+       if(starting_address !=0){
             throw error_format("START has already been declared");
         }
-        try{
-            symbol_table.insert_symbol(label, int_to_hex(starting_address), "R");
-        }catch(symtab_exception symex){
-            throw error_format(symex.getMessage());
-        }
-        
         return count;
     }
     else if(tmp.compare("BYTE") ==0){
@@ -390,32 +357,28 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         count += count_resb_operand(operand);
         return count;
     }
-    //Handle EQU cases STILL IN PROGRESS!!!!!!!!!!!
     else if(tmp.compare("EQU")==0){
-        try{
-        //If operand is a constant number, insert as Absolute value
-        if(is_hex(operand)){
-            symbol_table.insert_symbol(label, operand,"A");
-            return count; 
-        }
-        /*THIS NEEDS VERIFICATION OF VALIDITY!!!!*/
-        string rep_value;
         try{        
-            rep_value = symbol_table.get_value(operand);   
+            if(is_num(operand)||operand[0]=='$'){
+                symbol_table.insert_symbol(label, operand,"A");
+                return count; 
+            }        
+            string rep_value;
+            try{        
+                rep_value = symbol_table.get_value(operand);   
                         
-        }catch(symtab_exception syex){
-            rep_value = operand;
-        }       
-        try{
-            symbol_table.insert_symbol(label,rep_value,"R");
-            return count;
-        }catch(symtab_exception insex){
-            throw error_format(insex.getMessage());
-        }
-       /* 
-        else{
+            }catch(symtab_exception syex){
+                rep_value = operand;
+            }       
+            try{
+                symbol_table.insert_symbol(label,rep_value,"R");
+                return count;
+            }catch(symtab_exception insex){
+                throw error_format(insex.getMessage());
+            }        
+            
             throw error_format("Invalid operand for EQU command::Operand: "+operand);        
-        } */ 
+             
         }catch(symtab_exception symex){
             throw error_format(symex.getMessage());
         }catch(string other_ex){
@@ -424,14 +387,13 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         
         return count;
     }
-    //Set Base variable
     else if(tmp.compare("BASE")==0){
-        base=string_to_int(operand);
+        base=operand;
         return count;
     }
     //Clear Base variable
     else if(tmp.compare("NOBASE")==0){
-        base = 0;
+        base = "-1";
         return count;
     }
     //If start has not been declared, throw error
@@ -489,7 +451,7 @@ int sicxe_asm::string_to_int(string s){
     instr >> n;
     return n;
  }
-
+ 
 /**************************
  * Main Function          *
  **************************/
@@ -499,8 +461,7 @@ int main(int argc, char *argv[]){
           "to process at the command line." << endl;
         exit(1);
     }
-    string source_file_name = argv[1];
-    new sicxe_asm(source_file_name);
+    new sicxe_asm(argv[1]);
     return 0;
 }
 

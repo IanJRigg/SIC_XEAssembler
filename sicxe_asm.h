@@ -47,12 +47,16 @@ class sicxe_asm{
 		};
                 string lis_filename;
                 string in_filename;
+                string start_name;
+                string opcode;
+                string operand;
+                string label;
 		stringstream ss_error;
                 stringstream stream;
 		vector<prog_listing> lines;
 		int row_num;
                 int int_location_counter;
-                int base;
+                string base;
                 int starting_address;
                 int prog_len;
 		symtab symbol_table;
@@ -72,19 +76,19 @@ class sicxe_asm{
                 string int_to_hex(int);
                 int dec_to_int(string);
                 string format_7(string);
-                int string_to_int(string s);                
+                int string_to_int(string);                
                 string to_uppercase(string);
                                 
                 int character_count(string);
                 int process_directives(string,string,string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
-                int count_resb_operand(string operand);
+                int count_resb_operand(string);
                 
 		
 		string increment_location_counter(string, unsigned int);
                 string error_format(string);
-		void sicxe_asm::assemble();
+		void assemble();
 		
 };
 #endif
