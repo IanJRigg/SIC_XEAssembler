@@ -1,7 +1,7 @@
 .sample program for SIC/XE architecture
 .
 test    equ    #3'checking this out' .Test comment
-prog    start   0    .start of sample program
+source5    start   0    .start of sample program
 test    lds     #3'checking this out' .Test comment
         ldt     #300
         ldx     #0

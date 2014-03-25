@@ -2,9 +2,10 @@
 .test program for proj1-4
 .This file should assemble without errors
 
-prog    start   $1000    .start of sample program
+source3    start   $1000    .start of sample program
 bsrch   EQU     14
-OFFB    EQU     8 
+OFFB    EQU     8
+test    EQU     bsrch 
         BASE    delta
         LDB     #delta
         lds     #3
