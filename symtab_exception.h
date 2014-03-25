@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    Exception class for symtab
+    Prog3: Exception class for symtab
     CS530 Spring 2014
     Team Florida
     created originally by Alan Riggins
