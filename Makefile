@@ -1,34 +1,31 @@
 #Ian Rigg, Richard Valles, Chris Andaya, Arron McCarter\
 masc1258\
-prog 2: makefile\
+prog 3: Makefile\
 CS530, Spring 2014\
 Team Florida\
 
 #Makefile
-TORM = file_parser.o driver.o opcodetab.o driver opcodedriver.o opdriver
+TORM = opcodetab.o sicxe_asm sicxe_asm.o file_parser.o symtab.o
 CC = g++
-CCFLAGS = -g -O3 -Wall -Wcast-qual -Wpointer-arith -Wwrite-strings
+CCFLAGS = -g -O3 -Wall -Wpointer-arith -Wcast-qual -Wwrite-strings 
 
-opdriver: opcodetab.o opdriver.o
-		${CC} ${CCFLAGS} -o opdriver opcodedriver.o opcodetab.o            
+sicxe_asm:	sicxe_asm.o 
+	${CC} ${CCFLAGS} -o sicxe_asm sicxe_asm.o opcodetab.o file_parser.o symtab.o
 
-driver:	driver.o file_parser.o
-		${CC} ${CCFLAGS} -o driver driver.o file_parser.o
-              
-driver.o:	driver.cpp
-			${CC} ${CCFLAGS} -c driver.cpp
-
-opdriver.o:	opcodedriver.cpp
-			${CC} ${CCFLAGS} -c opcodedriver.cpp                        
-			
-fileparser.o:	file_parser.cc file_parser.h file_parse_exception.h
-				${CC} ${CCFLAGS} -c file_parser.cc
-				
+sicxe_asm.o:	sicxe_asm.cpp sicxe_asm.h opcodetab.o file_parser.o symtab.o 
+		${CC} ${CCFLAGS} -c sicxe_asm.cpp
+            
 opcodetab.o:	opcodetab.cc opcodetab.h opcode_error_exception.h
-			${CC} ${CCFLAGS} -c opcodetab.cc 
+			${CC} ${CCFLAGS} -c opcodetab.cc                    
 
 
-				
-clean:	
+symtab.o:	symtab.cc symtab.h symtab_exception.h
+		${CC} ${CCFLAGS} -c symtab.cc  
+  
+file_parser.o:	file_parser.cc file_parser.h file_parse_exception.h
+		${CC} ${CCFLAGS} -c file_parser.cc                
+clean:
 	rm -f ${TORM}
+
 #End Makefile
+                        

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <algorithm>
+#include <utility>
 
 #define NUMBER_OF_OPCODES 59
 #define INVALID_FORMAT_FOUR_NUM 17
@@ -45,17 +47,18 @@ class opcodetab {
                         
     private:
         // your variables and private methods go here
-	static string codes[59];
-	static string hex_codes[59];
-	static string format[59];
-        static string invalid_format_four[17];
-	map<string, pair<string, string> > opcode_map;
-	map<string, pair<string, string> >::iterator m_iter;
+        static const string codes[NUMBER_OF_OPCODES];
+        static const string hex_codes[NUMBER_OF_OPCODES];
+        static const string format[NUMBER_OF_OPCODES];
+        static const string invalid_format_four[INVALID_FORMAT_FOUR_NUM];
+        map<string, pair<string, string> > opcode_map;
+        map<string, pair<string, string> >::iterator m_iter;
         map<string,string> opcode_format_map;        
-	map<string,string>::iterator format_iter;
+        map<string,string>::iterator format_iter;
 	
-	bool opcode_exists(string);
+        bool opcode_exists(string);
         bool invalid_format(string);
+        string to_upper(string);
 };
 
 #endif

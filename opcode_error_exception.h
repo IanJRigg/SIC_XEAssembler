@@ -17,21 +17,20 @@ using namespace std;
 class opcode_error_exception {
 
 public:
-    opcode_error_exception(string s) {
-	message = s;
-    }
+	opcode_error_exception(string s) {
+		message = s;
+	}
 	
-    opcode_error_exception() {
-	message = "An error has occured";
-    }
+	opcode_error_exception() {
+		message = "An error has occured";
+	}
 	
-    string get_message() {
-	return message;
-    }
+	string getMessage() {
+		return message;
+	}
 	
 private:
-    string message;
-    
+	string message;
 };
 
 #endif

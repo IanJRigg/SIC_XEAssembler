@@ -1,8 +1,8 @@
 .sample program for SIC/XE architecture
 .
-test    equ    #3'checking this out' .Test comment
-source5    start   0    .start of sample program
-test    lds     #3'checking this out' .Test comment
+test    lds     #3'checking .this. out' .Test comment
+source9    start   0    .start of sample program
+test    lds     #3'checking .this out' .Test comment
         ldt     #300
         ldx     #0
 addlf   lda     alpha,x   .loop control     xxxxxxx
@@ -22,4 +22,4 @@ test    test   test     .testing with number in line        .
 alpha   resw    100
 beta    resw    100
 gamma   resw    100   
-        end     source5    .end of sample program   
+        end     source9   .end of sample program   
