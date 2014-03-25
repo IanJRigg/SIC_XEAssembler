@@ -39,11 +39,13 @@ class sicxe_asm{
 			string label;
 			string opcode;
 			string operand;
+			string machine_code;
 			prog_listing():  line_number(" "),
 					 address(" "),
 					 label(" "),
 					 opcode(" "),
-					 operand(" "){}
+					 operand(" "),
+					 machine_code(" "){}
 		};
                 string lis_filename;
                 string in_filename;
@@ -57,7 +59,8 @@ class sicxe_asm{
                 int prog_len;
 		symtab symbol_table;
 		opcodetab opcode_table;
-
+		
+		void assemble();
 		void store_line(string, string, string, string);
 		void print_file();
                 void write_file();
