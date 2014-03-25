@@ -1,29 +1,33 @@
-Program 1:
+Checklist for Program 3
 
-	Make a simple file parser to break down a simple .asm file into the following four tokens:
-		- label
-		- opcode
-		- operand
-		- comments
-		
-	Methods left to be completed:
-		
-		- The constructor:
-			file_parser(string filename)
-				intitialize the vector and the filename
-		
-		- The destructor
-			~file_parser()
-				free all of the occupied memory
-		
-		- void read_file()
-			open the file initialized in the constructor
-			iterate through the file one line at a time
-				for each line, sort out the tokens into the four listed above.
-				determine a mistake in the code and throw the file_parse_exception
-		
-		- string get_token(unsigned int line, unsigned int column);
-			return the token at the given line, in the given column
-		
-		- int size()
-			return the value of the vector's size function
+	Edit the comment around the functions so that they are easier to read.
+
+	Finish EQU handling
+	
+	Double check for handling Base directive properly
+	
+	Error verification
+	
+	Redact the changes to the START and END (if the label is at end, change it. If not don't worry about it)
+	
+	the label in front of start is not a label 
+	
+	Break up the first pass method farther
+	
+	Add a function for processing the addressing modes
+	
+	Rework any changes involving using a signed integer to operate on a data structure (Minor)
+	
+	
+	
+	
+	
+	
+	
+	
+	************************ General Error checking ********************************
+	
+	
+	****Make the changes to the main method to the assembler constructor
+	
+	****Make the changes to the constructor to account for an assembler method
