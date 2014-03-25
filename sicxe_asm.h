@@ -84,6 +84,7 @@ class sicxe_asm{
 		
 		string increment_location_counter(string, unsigned int);
                 string error_format(string);
+		void sicxe_asm::assemble();
 		
 };
 #endif

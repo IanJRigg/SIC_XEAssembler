@@ -20,9 +20,24 @@ sicxe_asm::sicxe_asm(string filename){
     base = 0;
     starting_address = 0;
     prog_len = 0;
+    assemble();
 }
 
 sicxe_asm::~sicxe_asm(){}
+
+/***********************************************************
+*Called to begin the 2 pass assembler                      *
+***********************************************************/
+void sicxe_asm::assemble() {
+	try {
+		first_pass();
+	} catch (string error) {
+		cout << "Error in sicxe_asm::first_pass(): " 
+		<< "\n" << error << endl;
+		exit(1);
+	}
+}
+	
 
 /************************************************************
  *Insert comments here describing the first_pass() algorithm*
@@ -46,12 +61,17 @@ void sicxe_asm::first_pass(){
     while(to_uppercase(opcode).compare("START") != 0){
          if(opcode.compare(" ")!=0){
                 string tmp_error = "Invalid command prior to program initialization: Opcode:"+opcode;                
-                if(process_directives(parser.get_token(row_num,0),opcode,parser.get_token(row_num,2)) != -1){
+                /*if(process_directives(parser.get_token(row_num,0),opcode,parser.get_token(row_num,2)) != -1){
+		    if(opcode.compare("EQU") != 0) {
+		    	tmp_error = "Illegal assembler directive before start.";
+			throw error_format(tmp_error);
+		    }
+		    	
                     store_line(int_to_hex(int_location_counter),parser.get_token(row_num,0),opcode, parser.get_token(row_num,2));
                     opcode=parser.get_token(++row_num,1);
                     tmp_error = "";
                     continue;
-                }
+                }*/
                 throw error_format(tmp_error);
          }     
          hex_location_counter = int_to_hex(int_location_counter);
@@ -125,6 +145,9 @@ void sicxe_asm::first_pass(){
     prog_len = int_location_counter - starting_address;
     print_file();
     write_file();
+    cout << int_location_counter << endl;
+    cout << starting_address << endl;
+    cout << prog_len << endl;
 }
 
 /*****************************************************
@@ -477,13 +500,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     string source_file_name = argv[1];
-    sicxe_asm assembler(source_file_name);
-    try{
-        assembler.first_pass();
-    }
-    catch(string error){
-        cout<< "Error in sicxe_asm: "<<source_file_name<<" \n"<<error<<endl;
-    }
+    new sicxe_asm(source_file_name);
     return 0;
 }
 
