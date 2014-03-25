@@ -1,5 +1,7 @@
 Checklist for Program 3
 
+	Edit the comment around the functions so that they are easier to read.
+
 	Finish EQU handling
 	
 	Double check for handling Base directive properly
