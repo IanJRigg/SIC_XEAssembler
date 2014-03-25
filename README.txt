@@ -12,10 +12,6 @@ Checklist for Program 3
 	
 	the label in front of start is not a label 
 	
-	Make the changes to the main method to the assembler constructor
-	
-	Make the changes to the constructor to account for an assembler method
-	
 	Break up the first pass method farther
 	
 	Add a function for processing the addressing modes
@@ -31,3 +27,7 @@ Checklist for Program 3
 	
 	************************ General Error checking ********************************
 	
+	
+	****Make the changes to the main method to the assembler constructor
+	
+	****Make the changes to the constructor to account for an assembler method
