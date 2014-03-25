@@ -20,9 +20,14 @@ sicxe_asm::sicxe_asm(string filename){
     base = 0;
     starting_address = 0;
     prog_len = 0;
+    assemble();
 }
 
 sicxe_asm::~sicxe_asm(){}
+
+void sicxe_asm::assemble(){
+    first_pass();
+}
 
 void sicxe_asm::first_pass(){
     file_parser parser(in_filename);
@@ -388,13 +393,8 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     string source_file_name = argv[1];
-    sicxe_asm assembler(source_file_name);
-    try{
-        assembler.first_pass();
-    }
-    catch(string error){
-        cout<< "Error in sicxe_asm: "<<source_file_name<<" \n"<<error<<endl;
-    }
+    new sicxe_asm(source_file_name);
+   
     return 0;
 }
 
