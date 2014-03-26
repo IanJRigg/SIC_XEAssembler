@@ -53,7 +53,7 @@ void sicxe_asm::first_pass(){
     try{
     parser.read_file();
     }catch(file_parse_exception ex){
-        throw error_format(ex.getMessage());
+        throw ex.getMessage();
     }    
     opcode = parser.get_token(row_num, 1); 
     string hex_location_counter;    
