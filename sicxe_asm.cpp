@@ -39,7 +39,9 @@ void sicxe_asm::assemble() {
 }
 
 /************************************************************
- *Insert comments here describing the first_pass() algorithm*
+ *Method: first_pass()                                      *
+ *Parameters: None                                          *
+ *Purpose: 
  ***********************************************************/
 void sicxe_asm::first_pass(){
     file_parser parser(in_filename);
@@ -55,7 +57,7 @@ void sicxe_asm::first_pass(){
      * if not found, verifies that opcode is valid prior to initialization*
      * stores information and proceeds to next line                       *
      **********************************************************************/
-    while(to_uppercase(opcode).compare("START") != 0){
+    while(!string_compare(opcode,"START")){
          hex_location_counter = int_to_hex(int_location_counter);
          store_line(hex_location_counter, " ", " ", " ");
          try{
@@ -87,20 +89,20 @@ void sicxe_asm::first_pass(){
         operand = parser.get_token(row_num,2);
         hex_location_counter = int_to_hex(int_location_counter);
         store_line(hex_location_counter, label, opcode, operand);
-        if(opcode.compare(" ") == 0){
+        if(string_compare(opcode," ")){
            row_num++;
            continue;
         }
-        if(to_uppercase(opcode).compare("END")==0){
-            if(operand.compare(" ")!=0){
-                if(to_uppercase(operand).compare(to_uppercase(start_name))!=0){
+        if(string_compare(opcode,"END")){
+            if(!string_compare(opcode," ")){
+                if(!string_compare(operand,start_name)){
                     throw error_format("Program end name does not match:(Operand: "+operand+") does not match start label (Label:"+start_name+")");
                 }
             }              
             row_num++;
             break;
         }        
-        if(label.compare(" ") != 0 && to_uppercase(opcode).compare("EQU")!=0){
+        if(!string_compare(label, " ") && !string_compare(opcode, "EQU")){
             try{
             symbol_table.insert_symbol(label, hex_location_counter,"R");
             }catch(symtab_exception symex){
@@ -171,17 +173,17 @@ void sicxe_asm::store_line(string address, string label, string opcode, string o
  *Prints the listing file to the command line*
  *********************************************/
 void sicxe_asm::print_file() {
-    cout<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
-    cout<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
-    cout<<setw(14)<<"Opcode"<<endl;
-    cout<<setw(7)<<"====="<<setw(12)<<"======="<<setw(10)<<"====="<<setw(14)<<"======";
-    cout<<setw(14)<<"======="<<endl;
+    cout<<setw(32)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
+    cout<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode");
+    cout<<format_15("Operand")<<endl;
+    cout<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======");
+    cout<<format_15("=======")<<endl;
     for(int i = 0; i < row_num; i++) {
-        cout << setw(7)<<i+1<< " ";        
-        cout << setw(11)<<format_7(lines.at(i).address)<<" ";
-        cout << setw(9)<<format_7(lines.at(i).label) << " ";
-        cout << setw(13)<<format_7(lines.at(i).opcode) << " ";
-        cout << setw(13)<<lines.at(i).operand << endl;
+        cout << setw(8)<<i+1;        
+        cout << format_15(format_8(lines.at(i).address));
+        cout << format_15(format_8(lines.at(i).label));
+        cout << format_15(format_8(lines.at(i).opcode));
+        cout << format_15(lines.at(i).operand) << endl;
     }
 }
 
@@ -195,27 +197,37 @@ void sicxe_asm::write_file() {
     ofstream listing;
     listing.open(lis_filename.c_str(),ios::out);
     if(listing.is_open()){
-        listing<<setw(25)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
-        listing<<setw(7)<<"Line#"<<setw(12)<<"Address"<<setw(10)<<"Label"<<setw(14)<<"Opcode";
-        listing<<setw(14)<<"Opcode"<<endl;
-        listing<<setw(7)<<"====="<<setw(12)<<"======="<<setw(10)<<"====="<<setw(14)<<"======";
-        listing<<setw(14)<<"======="<<endl;
+        listing<<setw(32)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
+        listing<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode");
+        listing<<format_15("Operand")<<endl;
+        listing<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======");
+        listing<<format_15("=======")<<endl;
         for(int i = 0; i < row_num; i++) {
-          listing << setw(7)<<i+1<< " ";        
-          listing << setw(11)<<format_7(lines.at(i).address)<<" ";
-          listing << setw(9)<<format_7(lines.at(i).label) << " ";//Correct this since labels can be 8
-          listing << setw(13)<<format_7(lines.at(i).opcode) << " ";
-          listing << setw(13)<<lines.at(i).operand << endl;
+            listing << setw(8)<<i+1;        
+            listing << format_15(format_8(lines.at(i).address));
+            listing << format_15(format_8(lines.at(i).label));
+            listing << format_15(format_8(lines.at(i).opcode));
+            listing << format_15(lines.at(i).operand) << endl;
         }
     }
     listing.close();
 }
 
 /*********************************
- *Formats a line to fill 7 spaces*
+ *Formats a line to fill 8 spaces*
  *********************************/
-string sicxe_asm::format_7(string x){
-    stream<<setw(7)<<setfill(' ')<<x;
+string sicxe_asm::format_8(string x){
+    stream<<setw(8)<<setfill(' ')<<x;
+    string tmp = stream.str();
+    stream.str("");
+    return tmp;
+}
+
+/**********************************
+ *Formats a line to fill 15 spaces*
+ **********************************/
+string sicxe_asm::format_15(string x){
+    stream<<setw(15)<<setfill(' ')<<x;
     string tmp = stream.str();
     stream.str("");
     return tmp;
@@ -288,11 +300,11 @@ int sicxe_asm::character_count(string s){
 int sicxe_asm::count_byte_operand(string operand){
     int count = 0;
     string c = to_uppercase(operand.substr(0,1));
-    if(c.compare("C")==0){
+    if(string_compare(c,"C")){
         count += character_count(operand);
         return count;
     }
-    else if (c.compare("X")==0){
+    else if (string_compare(c,"X")){
         int tmp = character_count(operand);
         /*If not an even number of characters or if not a hexidecimal value, throw*/
         if(tmp%2 !=0 && is_hex(operand.substr(2,operand.size()-3))){
@@ -332,32 +344,30 @@ int sicxe_asm::count_resb_operand(string operand){
  *******************************************/
 int sicxe_asm::process_directives(string label, string opcode, string operand){
     int count = 0;
-    string tmp = to_uppercase(opcode);  
-    
     //If start has already been declared, throw and error
-    if(tmp.compare("START")==0){
+    if(string_compare(opcode,"START")){
        if(starting_address !=0){
             throw error_format("START has already been declared");
         }
         return count;
     }
-    else if(tmp.compare("BYTE") ==0){
+    else if(string_compare(opcode,"BYTE")){
         count += count_byte_operand(operand);
         return count;        
     }
-    else if(tmp.compare("RESW")==0){
+    else if(string_compare(opcode,"RESW")){
         count += count_resw_operand(operand);
         return count;
     }
-    else if(tmp.compare("WORD")==0){
+    else if(string_compare(opcode,"WORD")){
         count += WORD_SIZE;
         return count;
     }
-    else if(tmp.compare("RESB")==0){
+    else if(string_compare(opcode,"RESB")){
         count += count_resb_operand(operand);
         return count;
     }
-    else if(tmp.compare("EQU")==0){
+    else if(string_compare(opcode,"EQU")){
         try{        
             if(is_num(operand)||operand[0]=='$'){
                 symbol_table.insert_symbol(label, operand,"A");
@@ -387,17 +397,17 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         
         return count;
     }
-    else if(tmp.compare("BASE")==0){
+    else if(string_compare(opcode,"BASE")){
         base=operand;
         return count;
     }
     //Clear Base variable
-    else if(tmp.compare("NOBASE")==0){
+    else if(string_compare(opcode,"NOBASE")){
         base = "-1";
         return count;
     }
     //If start has not been declared, throw error
-    else if(tmp.compare("END")==0){
+    else if(string_compare(opcode,"END")){
         if(starting_address ==0){
             throw error_format("END called prior to start");
         }
@@ -451,6 +461,16 @@ int sicxe_asm::string_to_int(string s){
     instr >> n;
     return n;
  }
+ 
+/************************************************
+ *Converts to uppercase and compares two strings*
+ ************************************************/
+ bool sicxe_asm::string_compare(string first, string second){
+    if(to_uppercase(first).compare(to_uppercase(second))==0){
+        return true;
+    }
+    return false;
+ } 
  
 /**************************
  * Main Function          *

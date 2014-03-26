@@ -70,12 +70,14 @@ class sicxe_asm{
 		bool is_hex(string);
                 bool is_num(string);
                 int verify_start_location_value(string);
+                bool string_compare(string,string);
                 
                 //Conversion functions
 		int hex_to_int(string);
                 string int_to_hex(int);
                 int dec_to_int(string);
-                string format_7(string);
+                string format_8(string);
+                string format_15(string);
                 int string_to_int(string);                
                 string to_uppercase(string);
                                 
