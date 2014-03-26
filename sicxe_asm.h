@@ -48,6 +48,7 @@ class sicxe_asm{
                 string lis_filename;
                 string in_filename;
                 string start_name;
+                string address;
                 string opcode;
                 string operand;
                 string label;
@@ -62,7 +63,7 @@ class sicxe_asm{
 		symtab symbol_table;
 		opcodetab opcode_table;
 
-		void store_line(string, string, string, string);
+		void store_line();
 		void print_file();
                 void write_file();
                 
@@ -82,12 +83,12 @@ class sicxe_asm{
                 string to_uppercase(string);
                                 
                 int character_count(string);
-                int process_directives(string,string,string);
-                void process_base(string, string);
-                void process_equ(string, string);
-                int count_byte_operand(string);
-                int count_resw_operand(string);
-                int count_resb_operand(string);
+                int process_directives();
+                void process_base();
+                void process_equ();
+                int count_byte_operand();
+                int count_resw_operand();
+                int count_resb_operand();
                 
 		
 		string increment_location_counter(string, unsigned int);

@@ -56,15 +56,16 @@ void sicxe_asm::first_pass(){
         throw ex.getMessage();
     }    
     opcode = parser.get_token(row_num, 1); 
-    string hex_location_counter;    
-    /********************************************************************** 
-     *Checks opcode for start command                                     *
+    string starting_hex_operand;    
+    /*Checks opcode for start command                                     *
      * if not found, verifies that opcode is valid prior to initialization*
-     * stores information and proceeds to next line                       *
-     **********************************************************************/
+     * stores information and proceeds to next line                       */
     while(!string_compare(opcode,"START")){
-         hex_location_counter = int_to_hex(int_location_counter);
-         store_line(hex_location_counter, " ", " ", " ");
+         address = int_to_hex(int_location_counter);
+         label = " ";
+         opcode = " ";
+         operand = " ";
+         store_line();
          try{
          opcode = parser.get_token(++row_num, 1);
          }catch(file_parse_exception fex){
@@ -74,16 +75,17 @@ void sicxe_asm::first_pass(){
     /* If opcode is start command then location is replaced with operand value
      * current address is stored on line
      */
-    hex_location_counter = parser.get_token(row_num, 2);
+    starting_hex_operand = parser.get_token(row_num, 2);
     label = parser.get_token(row_num,0);
     operand = parser.get_token(row_num,2);
     start_name = to_uppercase(label);
-    store_line(int_to_hex(int_location_counter), label, opcode, operand);
+    address = int_to_hex(int_location_counter);
+    store_line();
     /***************************************************** 
      *Checks if start is a hex declaration with $ symbol *
      * if not operand is taken for starting address value*
      *****************************************************/
-    int_location_counter = verify_start_location_value(hex_location_counter);
+    int_location_counter = verify_start_location_value(starting_hex_operand);
     starting_address = int_location_counter;
     row_num++;
     int file_size = parser.size();
@@ -91,11 +93,11 @@ void sicxe_asm::first_pass(){
         opcode = parser.get_token(row_num, 1);
         label = parser.get_token(row_num, 0);
         operand = parser.get_token(row_num,2);
-        hex_location_counter = int_to_hex(int_location_counter);
-        if(symbol_table.in_symtab(operand)){
+        address = int_to_hex(int_location_counter);
+        if(symbol_table.in_symtab(operand) && string_compare(opcode,"EQU")){
             operand = symbol_table.get_value(operand);
-        }
-        store_line(hex_location_counter, label, opcode, operand);
+        }         
+        store_line();
         if(string_compare(opcode,"END")){
             if(!string_compare(opcode," ")){
                 if(!string_compare(operand,start_name)){
@@ -107,7 +109,7 @@ void sicxe_asm::first_pass(){
         }        
         if(!string_compare(label, " ") && !string_compare(opcode, "EQU")){
             try{
-            symbol_table.insert_symbol(label, hex_location_counter,"R");
+            symbol_table.insert_symbol(label,address,"R");
             }catch(symtab_exception symex){
                 throw error_format(symex.getMessage());
             }
@@ -124,7 +126,7 @@ void sicxe_asm::first_pass(){
             errorflag=ex.getMessage();            
         }
         if(errorflag.size()>1){
-                opcode_size = process_directives(label,opcode,operand);
+                opcode_size = process_directives();
                 if(opcode_size==-1){
                     throw error_format(errorflag);
                 }
@@ -164,7 +166,7 @@ int sicxe_asm::dec_to_int(string s){
  *Stores the address, label, opcode and operand into a struct*
  *Pushes the struct into a vector                            *
  ************************************************************/
-void sicxe_asm::store_line(string address, string label, string opcode, string operand){
+void sicxe_asm::store_line(){
     prog_listing line;
     stream <<row_num + 1;
     line.line_number = stream.str();
@@ -181,15 +183,15 @@ void sicxe_asm::store_line(string address, string label, string opcode, string o
  *********************************************/
 void sicxe_asm::print_file() {
     cout<<setw(32)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
-    cout<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode");
+    cout<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode")<<" ";
     cout<<format_15("Operand")<<endl;
-    cout<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======");
+    cout<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======")<<" ";
     cout<<format_15("=======")<<endl;
     for(int i = 0; i < row_num; i++) {
         cout << setw(8)<<i+1;        
         cout << format_15(format_8(lines.at(i).address));
         cout << format_15(format_8(lines.at(i).label));
-        cout << format_15(format_8(lines.at(i).opcode));
+        cout << format_15(format_8(lines.at(i).opcode))<<" ";
         cout << format_15(lines.at(i).operand) << endl;
     }
 }
@@ -205,15 +207,15 @@ void sicxe_asm::write_file() {
     listing.open(lis_filename.c_str(),ios::out);
     if(listing.is_open()){
         listing<<setw(32)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
-        listing<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode");
+        listing<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode")<<" ";
         listing<<format_15("Operand")<<endl;
-        listing<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======");
+        listing<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======")<<" ";
         listing<<format_15("=======")<<endl;
         for(int i = 0; i < row_num; i++) {
             listing << setw(8)<<i+1;        
             listing << format_15(format_8(lines.at(i).address));
             listing << format_15(format_8(lines.at(i).label));
-            listing << format_15(format_8(lines.at(i).opcode));
+            listing << format_15(format_8(lines.at(i).opcode))<<" ";
             listing << format_15(lines.at(i).operand) << endl;
         }
     }
@@ -304,7 +306,7 @@ int sicxe_asm::character_count(string s){
  *if improperly formatted it will throw an error               *
  *otherwise return the number of bytes                         *
  ***************************************************************/
-int sicxe_asm::count_byte_operand(string operand){
+int sicxe_asm::count_byte_operand(){
     int count = 0;
     string c = to_uppercase(operand.substr(0,1));
     if(string_compare(c,"C")){
@@ -328,7 +330,7 @@ int sicxe_asm::count_byte_operand(string operand){
  *Counts the number of words to reserve  *
  *Error checking performed by dec_to_int * 
  *****************************************/
-int sicxe_asm::count_resw_operand(string operand){
+int sicxe_asm::count_resw_operand(){
     int count = 0;
     count += dec_to_int(operand)*WORD_SIZE;
     return count;
@@ -338,7 +340,7 @@ int sicxe_asm::count_resw_operand(string operand){
  *Counts the number of Bytes to reserve *
  *Error checking performed by dec_to_int*
  ****************************************/
-int sicxe_asm::count_resb_operand(string operand){
+int sicxe_asm::count_resb_operand(){
     int count = 0;
     count += dec_to_int(operand);
     return count;
@@ -349,7 +351,7 @@ int sicxe_asm::count_resb_operand(string operand){
  *Processes any preprocessor directives    *
  *Returns value to be added to address     *
  *******************************************/
-int sicxe_asm::process_directives(string label, string opcode, string operand){
+int sicxe_asm::process_directives(){
     int count = 0;
     string orig_operand = operand;
     //Checks for and replaces forward reference in operand
@@ -364,11 +366,11 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         return count;
     }
     else if(string_compare(opcode,"BYTE")){
-        count += count_byte_operand(operand);
+        count += count_byte_operand();
         return count;        
     }
     else if(string_compare(opcode,"RESW")){
-        count += count_resw_operand(operand);
+        count += count_resw_operand();
         return count;
     }
     else if(string_compare(opcode,"WORD")){
@@ -376,15 +378,15 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         return count;
     }
     else if(string_compare(opcode,"RESB")){
-        count += count_resb_operand(operand);
+        count += count_resb_operand();
         return count;
     }
     else if(string_compare(opcode,"EQU")){
-        process_equ(label,operand);       
+        process_equ();       
         return count;
     }
     else if(string_compare(opcode,"BASE") || string_compare(opcode,"NOBASE")){
-        process_base(opcode,operand);
+        process_base();
         return count;
     }
     //If start has not been declared, throw error
@@ -404,7 +406,7 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
 /*********************************
  *Handles BASE directive commands*
  *********************************/
-void sicxe_asm::process_base(string opcode, string operand){
+void sicxe_asm::process_base(){
     if(string_compare(opcode,"BASE")){
         base=operand;
     }
@@ -416,7 +418,10 @@ void sicxe_asm::process_base(string opcode, string operand){
 /********************************
  *Handes EQU directive commands *
  ********************************/
-void sicxe_asm::process_equ(string label, string operand){
+void sicxe_asm::process_equ(){
+        if(symbol_table.in_symtab(operand)){
+            operand = symbol_table.get_value(operand);
+        }
          try{        
             if(is_num(operand)||operand[0]=='$'){
                 symbol_table.insert_symbol(label, operand,"A"); 
