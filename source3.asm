@@ -15,7 +15,7 @@ test    EQU     bsrch
         ldx     @zeta   
 first   NORM  
         SVC     13  
-        HIO
+        HIO     test
         ldt     #alpha
         +ldt     #foo
         lda     @alpha
@@ -40,7 +40,7 @@ addl    lda     alpha,x   .loop control
         rsub  
         
 . storage allocation section 
-test    byte    C'Test program #1' 
+test3    byte    C'Test program #1' 
 test2   byte    x'007b'      
 alpha   resw    100
 beta    RESW    100
