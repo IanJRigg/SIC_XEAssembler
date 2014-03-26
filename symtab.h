@@ -11,6 +11,7 @@
 
 #include <string>
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
@@ -31,18 +32,21 @@ class symtab{
                 
                 /**Checks if flag set for relative address or absolute value
                  * Relative = return 1
-                 * Absolute = return 0  
+                 * Absolute = return 0
+                 *TO BE DEFINED IN PROG4  
                  */
                 int check_flag(string);
                  
                 /**Sets the flag if value is relative address or absolute value
                   * Relative = 1
-                  * Absolute = 0
+                  * Absolute = 0                  
+                  *TO BE DEFINED IN PROG4
                   */
                 void set_flag(string);
                 
                 /**Checks if value exists in symbol table*/
 		bool in_symtab(string);
+                
 		string to_uppercase(string);
             
 
