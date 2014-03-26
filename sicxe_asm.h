@@ -83,6 +83,8 @@ class sicxe_asm{
                                 
                 int character_count(string);
                 int process_directives(string,string,string);
+                void process_base(string, string);
+                void process_equ(string, string);
                 int count_byte_operand(string);
                 int count_resw_operand(string);
                 int count_resb_operand(string);

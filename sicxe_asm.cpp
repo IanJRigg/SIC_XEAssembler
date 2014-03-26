@@ -41,7 +41,12 @@ void sicxe_asm::assemble() {
 /************************************************************
  *Method: first_pass()                                      *
  *Parameters: None                                          *
- *Purpose: 
+ *Purpose: Processes the first pass of the assembler.       *
+ *1)Reads and parses the source code file provided          *
+ *2)Processes assembler directives                          *
+ *3)Inputs symbols into the symbol table                    *
+ *4)Assigns addresses to each line of code                  *
+ *5)Writes a listing file to be used by second pass         *
  ***********************************************************/
 void sicxe_asm::first_pass(){
     file_parser parser(in_filename);
@@ -74,7 +79,6 @@ void sicxe_asm::first_pass(){
     operand = parser.get_token(row_num,2);
     start_name = to_uppercase(label);
     store_line(int_to_hex(int_location_counter), label, opcode, operand);
-    
     /***************************************************** 
      *Checks if start is a hex declaration with $ symbol *
      * if not operand is taken for starting address value*
@@ -88,6 +92,9 @@ void sicxe_asm::first_pass(){
         label = parser.get_token(row_num, 0);
         operand = parser.get_token(row_num,2);
         hex_location_counter = int_to_hex(int_location_counter);
+        if(symbol_table.in_symtab(operand)){
+            operand = symbol_table.get_value(operand);
+        }
         store_line(hex_location_counter, label, opcode, operand);
         if(string_compare(opcode," ")){
            row_num++;
@@ -120,7 +127,7 @@ void sicxe_asm::first_pass(){
                 opcode_size = process_directives(label,opcode,operand);
                 if(opcode_size==-1){
                     throw error_format(errorflag);
-                };
+                }
         }
         int_location_counter+=opcode_size;
         row_num++;
@@ -344,6 +351,11 @@ int sicxe_asm::count_resb_operand(string operand){
  *******************************************/
 int sicxe_asm::process_directives(string label, string opcode, string operand){
     int count = 0;
+    string orig_operand = operand;
+    //Checks for and replaces forward reference in operand
+    if(symbol_table.in_symtab(operand)){
+            operand = symbol_table.get_value(operand);
+        }
     //If start has already been declared, throw and error
     if(string_compare(opcode,"START")){
        if(starting_address !=0){
@@ -368,49 +380,18 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         return count;
     }
     else if(string_compare(opcode,"EQU")){
-        try{        
-            if(is_num(operand)||operand[0]=='$'){
-                symbol_table.insert_symbol(label, operand,"A");
-                return count; 
-            }        
-            string rep_value;
-            try{        
-                rep_value = symbol_table.get_value(operand);   
-                        
-            }catch(symtab_exception syex){
-                rep_value = operand;
-            }       
-            try{
-                symbol_table.insert_symbol(label,rep_value,"R");
-                return count;
-            }catch(symtab_exception insex){
-                throw error_format(insex.getMessage());
-            }        
-            
-            throw error_format("Invalid operand for EQU command::Operand: "+operand);        
-             
-        }catch(symtab_exception symex){
-            throw error_format(symex.getMessage());
-        }catch(string other_ex){
-            throw other_ex;
-        }
-        
+        process_equ(label,operand);       
         return count;
     }
-    else if(string_compare(opcode,"BASE")){
-        base=operand;
-        return count;
-    }
-    //Clear Base variable
-    else if(string_compare(opcode,"NOBASE")){
-        base = "-1";
+    else if(string_compare(opcode,"BASE") || string_compare(opcode,"NOBASE")){
+        process_base(opcode,operand);
         return count;
     }
     //If start has not been declared, throw error
     else if(string_compare(opcode,"END")){
         if(starting_address ==0){
             throw error_format("END called prior to start");
-        }
+        }        
         return count;
     }
     //Invalid preprocessor directive
@@ -420,6 +401,33 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
     
 }
 
+/*********************************
+ *Handles BASE directive commands*
+ *********************************/
+void sicxe_asm::process_base(string opcode, string operand){
+    if(string_compare(opcode,"BASE")){
+        base=operand;
+    }
+    else if(string_compare(opcode,"NOBASE")){
+        base = "-1";
+    }
+}
+
+/********************************
+ *Handes EQU directive commands *
+ ********************************/
+void sicxe_asm::process_equ(string label, string operand){
+         try{        
+            if(is_num(operand)||operand[0]=='$'){
+                symbol_table.insert_symbol(label, operand,"A"); 
+            }
+            else{ 
+                symbol_table.insert_symbol(label,operand,"R");
+            } 
+        }catch(symtab_exception symex){
+            throw error_format(symex.getMessage());
+        } 
+}
 
 /**************************************************************************
  *Processes incomming starting address value                              *
