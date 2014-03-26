@@ -36,7 +36,7 @@ string symtab::get_value(string key){
 void symtab::insert_symbol(string key, string value, string flag){
     if(in_symtab(key)){
         throw symtab_exception("Unable to insert, key exists in symtab::Key: "+key);
-    }
+    }   
     symbol_table[key] = pair<string,string> (value,flag);
 }
 
