@@ -43,6 +43,7 @@ class symtab{
                 
                 /**Checks if value exists in symbol table*/
 		bool in_symtab(string);
+		string to_uppercase(string);
             
 
 	private:
