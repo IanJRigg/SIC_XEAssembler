@@ -14,6 +14,7 @@ addlf   lda     alpha,x   .loop control
         addr    s,x
         compr   x,t 
         jlt     addlp 
+        
 testthis  
         .
 . storage allocation section        

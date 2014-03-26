@@ -4,7 +4,7 @@
 .test program for proj1-4
 .This file should assemble without errors
 
-3source	start	0	.start of sample program
+prog	start	0	.start of sample program
 bsrch	EQU	14
 OFFB	EQU	8
 	BASE	delta
@@ -34,4 +34,4 @@ delta	word	8
         .
          .
           .
-	end	3source	.end of sample program
+	end		.end of sample program
