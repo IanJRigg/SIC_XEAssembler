@@ -300,11 +300,11 @@ int sicxe_asm::character_count(string s){
 int sicxe_asm::count_byte_operand(string operand){
     int count = 0;
     string c = to_uppercase(operand.substr(0,1));
-    if(c.compare("C")==0){
+    if(string_compare(c,"C")){
         count += character_count(operand);
         return count;
     }
-    else if (c.compare("X")==0){
+    else if (string_compare(c,"X")){
         int tmp = character_count(operand);
         /*If not an even number of characters or if not a hexidecimal value, throw*/
         if(tmp%2 !=0 && is_hex(operand.substr(2,operand.size()-3))){
@@ -344,32 +344,30 @@ int sicxe_asm::count_resb_operand(string operand){
  *******************************************/
 int sicxe_asm::process_directives(string label, string opcode, string operand){
     int count = 0;
-    string tmp = to_uppercase(opcode);  
-    
     //If start has already been declared, throw and error
-    if(tmp.compare("START")==0){
+    if(string_compare(opcode,"START")){
        if(starting_address !=0){
             throw error_format("START has already been declared");
         }
         return count;
     }
-    else if(tmp.compare("BYTE") ==0){
+    else if(string_compare(opcode,"BYTE")){
         count += count_byte_operand(operand);
         return count;        
     }
-    else if(tmp.compare("RESW")==0){
+    else if(string_compare(opcode,"RESW")){
         count += count_resw_operand(operand);
         return count;
     }
-    else if(tmp.compare("WORD")==0){
+    else if(string_compare(opcode,"WORD")){
         count += WORD_SIZE;
         return count;
     }
-    else if(tmp.compare("RESB")==0){
+    else if(string_compare(opcode,"RESB")){
         count += count_resb_operand(operand);
         return count;
     }
-    else if(tmp.compare("EQU")==0){
+    else if(string_compare(opcode,"EQU")){
         try{        
             if(is_num(operand)||operand[0]=='$'){
                 symbol_table.insert_symbol(label, operand,"A");
@@ -399,17 +397,17 @@ int sicxe_asm::process_directives(string label, string opcode, string operand){
         
         return count;
     }
-    else if(tmp.compare("BASE")==0){
+    else if(string_compare(opcode,"BASE")){
         base=operand;
         return count;
     }
     //Clear Base variable
-    else if(tmp.compare("NOBASE")==0){
+    else if(string_compare(opcode,"NOBASE")){
         base = "-1";
         return count;
     }
     //If start has not been declared, throw error
-    else if(tmp.compare("END")==0){
+    else if(string_compare(opcode,"END")){
         if(starting_address ==0){
             throw error_format("END called prior to start");
         }
