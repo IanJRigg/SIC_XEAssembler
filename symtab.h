@@ -40,14 +40,16 @@ class symtab{
                   * Absolute = 0
                   */
                 void set_flag(string);
+                
+                /**Checks if value exists in symbol table*/
+		bool in_symtab(string);
             
 
 	private:
 		map<string, pair<string,string> > symbol_table;
                 map<string, pair<string,string> >::iterator symbol_table_iterator;
                                                 
-                /**Checks if value exists in symbol table*/
-		bool in_symtab(string);
+                
 		
 };
 #endif
