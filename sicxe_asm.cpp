@@ -96,10 +96,6 @@ void sicxe_asm::first_pass(){
             operand = symbol_table.get_value(operand);
         }
         store_line(hex_location_counter, label, opcode, operand);
-        if(string_compare(opcode," ")){
-           row_num++;
-           continue;
-        }
         if(string_compare(opcode,"END")){
             if(!string_compare(opcode," ")){
                 if(!string_compare(operand,start_name)){
@@ -115,6 +111,10 @@ void sicxe_asm::first_pass(){
             }catch(symtab_exception symex){
                 throw error_format(symex.getMessage());
             }
+        }
+        if(string_compare(opcode," ")){
+           row_num++;
+           continue;
         }
         int opcode_size =0;
         string errorflag="";
