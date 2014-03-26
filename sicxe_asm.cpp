@@ -40,13 +40,6 @@ void sicxe_asm::assemble() {
 
 /************************************************************
  *Method: first_pass()                                      *
- *Parameters: None                                          *
- *Purpose: Processes the first pass of the assembler.       *
- *1)Reads and parses the source code file provided          *
- *2)Processes assembler directives                          *
- *3)Inputs symbols into the symbol table                    *
- *4)Assigns addresses to each line of code                  *
- *5)Writes a listing file to be used by second pass         *
  ***********************************************************/
 void sicxe_asm::first_pass(){
     file_parser parser(in_filename);
