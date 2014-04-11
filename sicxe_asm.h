@@ -270,7 +270,7 @@ class sicxe_asm{
 	/***************************************************************************
  	*Method: assemble();                                                       *
 	*Parameters: none                                                          *
- 	*Purpose:  Takes in a string message and returns a line # and a message    *
+ 	*Purpose:  Processes pass one and pass two of the assembler                *
  	*Returns: error message                                                    *
 	*Error handling: Catches any errors thrown by first_pass()                 *
  	****************************************************************************/ 
