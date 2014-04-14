@@ -21,6 +21,7 @@ sicxe_asm::sicxe_asm(string filename){
     starting_address = 0;
     prog_len = 0;
     assemble();
+    
 }
 
 sicxe_asm::~sicxe_asm(){}
@@ -87,7 +88,7 @@ void sicxe_asm::first_pass(){
         label = parser.get_token(row_num, 0);
         operand = parser.get_token(row_num,2);
         address = int_to_hex(int_location_counter);
-        if(symbol_table.in_symtab(operand) && string_compare(opcode,"EQU")){
+        if(symbol_table.in_symtab(operand) /*&& string_compare(opcode,"EQU")*/){
             operand = symbol_table.get_value(operand);
         }         
         store_line();
@@ -131,6 +132,26 @@ void sicxe_asm::first_pass(){
     print_file();
     write_file();
 }
+
+/*****************************************************
+ *Method: second_pass()                              *
+ *****************************************************/
+ void sicxe_asm::second_pass(){
+    /*TODO: Get opcode and size, read and validate the operand field
+     *operand for size 3/4 =
+        -Alpha
+        -#Alpha
+        -@Alpha
+        -#2  Constant value
+        - Alpha, x - for LDX command
+        -Blank  - Some functions take no operands
+    -format 1 = Operand should be blank
+    -format 2 = create register table to verify format2
+    Verify size limits
+    Calculate and set nixbpe flags
+    */
+    
+ }
 
 /*****************************************************
  *Converts a decimal integer to a hexadecimal string.*
