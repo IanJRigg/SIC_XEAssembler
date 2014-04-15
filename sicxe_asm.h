@@ -291,6 +291,15 @@ class sicxe_asm{
         *Error Handling: None                                      *
         ************************************************************/ 
         int check_addr_mode(string);
+	
+	/***************************************************************************
+	*Method: validate_operand(string);					   *
+	*Parameters: operand string						   *
+	*Purpose: To check the validity of the operands				   *
+	*Returns: True, if operand is valid, false otherwise			   *
+	*Error handling: none							   *
+	****************************************************************************/
+	bool validate_operand(string);
 		
 };
 #endif
