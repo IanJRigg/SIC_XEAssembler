@@ -41,11 +41,13 @@ class sicxe_asm{
 		string label;
 		string opcode;
 		string operand;
+                string m_code;
 		prog_listing():  line_number(" "),
 				 address(" "),
 				 label(" "),
 				 opcode(" "),
-				 operand(" "){}
+				 operand(" "),
+                                 m_code(" "){}
 	};
         string lis_filename;
         string in_filename;
@@ -54,12 +56,15 @@ class sicxe_asm{
         string opcode;
         string operand;
         string label;
+        string m_code;
+        
 	stringstream ss_error;
         stringstream stream;
 	vector<prog_listing> lines;
 	int row_num;
         int int_location_counter;
         string base;
+        int file_size;
         int starting_address;
         int prog_len;
 	symtab symbol_table;
@@ -277,6 +282,15 @@ class sicxe_asm{
 	*Error handling: Catches any errors thrown by first_pass()                 *
  	****************************************************************************/ 
 	void assemble();
+        
+       /************************************************************
+        *Method: check_addr_mode(string)                           *
+        *Parameters: operand                                       *
+        *Purpose:Validate operand first character for #, @ or none *
+        *Returns: 1 if #, 2 if @ , 3 if $, 0 if none               *
+        *Error Handling: None                                      *
+        ************************************************************/ 
+        int check_addr_mode(string);
 		
 };
 #endif
