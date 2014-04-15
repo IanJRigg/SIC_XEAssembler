@@ -6,6 +6,34 @@ Checklist for Program 4
 	
 	Things to be accounting for:
 	
+	
+	
+	
+	
+Flags:
+
+if the operand has an @ sign: n = 1, i = 0
+if the operand has a # sign: n = 0, i = 1
+Otherwise n = 1, i = 1
+
+if there is a + in front of the opcode: e = 1, b = 0, p = 0
+otherwise e = 0
+
+if the x register is in the operand field, x = 1
+otherwise x = 0
+
+if the base variable is set, check to see if the address is within the range
+	if yes, p = 1, b = 0
+	otherwise, p = 0, b = 1
+	
+	
+	
+	
+	
+	
+	
+	
+	
 Robust error handling; the program should never crash.
 	If an error occurs, you should terminate your program and print a helpful error message.
 	It should include a description of the problem, and the line number in the source file where the error occurred. 
