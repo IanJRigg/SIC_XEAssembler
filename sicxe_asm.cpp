@@ -32,6 +32,7 @@ sicxe_asm::~sicxe_asm(){}
 void sicxe_asm::assemble() {
 	try {
 		first_pass();
+                second_pass();
 	} catch (string error) {
 		cout << "Error in sicxe_asm::first_pass(): " 
 		<< "\n" << error << endl;
@@ -82,7 +83,7 @@ void sicxe_asm::first_pass(){
     int_location_counter = verify_start_location_value(starting_hex_operand);
     starting_address = int_location_counter;
     row_num++;
-    int file_size = parser.size();
+    file_size = parser.size();
     while(row_num < file_size){         
         opcode = parser.get_token(row_num, 1);
         label = parser.get_token(row_num, 0);
@@ -103,7 +104,7 @@ void sicxe_asm::first_pass(){
         }        
         if(!string_compare(label, " ") && !string_compare(opcode, "EQU")){
             try{
-            symbol_table.insert_symbol(label,address,"R");
+            symbol_table.insert_symbol(label,"$"+address,"R");
             }catch(symtab_exception symex){
                 throw error_format(symex.getMessage());
             }
@@ -129,14 +130,22 @@ void sicxe_asm::first_pass(){
         row_num++;
     }
     prog_len = int_location_counter - starting_address;
-    print_file();
-    write_file();
+    
 }
 
 /*****************************************************
  *Method: second_pass()                              *
  *****************************************************/
  void sicxe_asm::second_pass(){
+    row_num =0;
+    while(row_num < file_size-1){
+        address = lines.at(row_num).address;
+        opcode = lines.at(row_num).opcode;
+        operand = lines.at(row_num).operand;
+        cout<<check_addr_mode(operand)<<" ";
+        row_num++;
+    }
+    cout<<endl;
     /*TODO: Get opcode and size, read and validate the operand field
      *operand for size 3/4 =
         -Alpha
@@ -150,6 +159,8 @@ void sicxe_asm::first_pass(){
     Verify size limits
     Calculate and set nixbpe flags
     */
+    print_file();
+    write_file();
     
  }
 
@@ -198,15 +209,16 @@ void sicxe_asm::store_line(){
 void sicxe_asm::print_file() {
     cout<<setw(32)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
     cout<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode")<<" ";
-    cout<<format_15("Operand")<<endl;
+    cout<<format_15("Operand")<<format_15("Machine Code")<<endl;
     cout<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======")<<" ";
-    cout<<format_15("=======")<<endl;
+    cout<<format_15("=======")<<format_15("============")<<endl;
     for(int i = 0; i < row_num; i++) {
         cout << setw(8)<<i+1;        
         cout << format_15(format_8(lines.at(i).address));
         cout << format_15(format_8(lines.at(i).label));
         cout << format_15(format_8(lines.at(i).opcode))<<" ";
-        cout << format_15(lines.at(i).operand) << endl;
+        cout << format_15(lines.at(i).operand);
+        cout<<format_15(lines.at(i).m_code)<<endl;
     }
 }
 
@@ -222,15 +234,16 @@ void sicxe_asm::write_file() {
     if(listing.is_open()){
         listing<<setw(32)<<"**"<<in_filename.substr(0,in_filename.size()-4)<<"**"<<endl;
         listing<<format_8("Line#")<<format_15("Address")<<format_15("Label")<<format_15("Opcode")<<" ";
-        listing<<format_15("Operand")<<endl;
+        listing<<format_15("Operand")<<format_15("Machine Code")<<endl;
         listing<<format_8("=====")<<format_15("=======")<<format_15("=====")<<format_15("======")<<" ";
-        listing<<format_15("=======")<<endl;
+        listing<<format_15("=======")<<format_15("============")<<endl;
         for(int i = 0; i < row_num; i++) {
             listing << setw(8)<<i+1;        
             listing << format_15(format_8(lines.at(i).address));
             listing << format_15(format_8(lines.at(i).label));
             listing << format_15(format_8(lines.at(i).opcode))<<" ";
-            listing << format_15(lines.at(i).operand) << endl;
+            listing << format_15(lines.at(i).operand);
+            listing << format_15(lines.at(i).m_code)<<endl;
         }
     }
     listing.close();
@@ -433,7 +446,7 @@ void sicxe_asm::process_base(){
  *Handes EQU directive commands *
  ********************************/
 void sicxe_asm::process_equ(){
-        if(symbol_table.in_symtab(operand)){
+        while(symbol_table.in_symtab(operand)){
             operand = symbol_table.get_value(operand);
         }
          try{        
@@ -492,12 +505,31 @@ int sicxe_asm::string_to_int(string s){
 /************************************************
  *Converts to uppercase and compares two strings*
  ************************************************/
- bool sicxe_asm::string_compare(string first, string second){
+bool sicxe_asm::string_compare(string first, string second){
     if(to_uppercase(first).compare(to_uppercase(second))==0){
         return true;
     }
     return false;
- } 
+ }
+ 
+ /***********************************************************
+  *Checks first character of operand to see if #, @ or none *
+  ***********************************************************/
+int sicxe_asm::check_addr_mode(string operand){
+    string first_char = operand.substr(0,1);
+    if(string_compare(first_char, "#")){
+        return 1;
+    }
+    else if(string_compare(first_char, "@")){
+        return 2;
+    }
+    else if(string_compare(first_char, "$")){
+        return 3;
+    }
+    else{
+        return 0;
+    }    
+}
  
 /**************************
  * Main Function          *
