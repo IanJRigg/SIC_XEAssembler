@@ -31,6 +31,8 @@ class sicxe_asm{
         ~sicxe_asm();
 
 	void first_pass();
+        
+        void second_pass();
 
     private:
 	struct prog_listing{
