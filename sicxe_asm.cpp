@@ -530,6 +530,33 @@ int sicxe_asm::check_addr_mode(string operand){
         return 0;
     }    
 }
+
+/***********************************************************
+*Checks and confirms values in the operand field are valid.*  
+ **********************************************************/
+ bool sicxe_asm::validate_operand(string operand) {
+    string op1, op2;
+    int tmp = check_addr_mode(operand);
+    size_t found = operand.find(",");
+    op1 = operand.substr(0, found);
+    if(found != std::string::npos){
+        op1 = operand.substr(0, found-1);
+        op2 = operand.substr(found+1, operand.size());
+    }
+    if(tmp == 2 || tmp == 1) {
+        return symbol_table.in_symtab(op1.substr(1,op1.size()-1))
+    } 
+    /*TODO: Add this as check for size 2.
+    else if(symbol_table.in_symtab(op1) && in_regtab(op2)){
+        return true;
+    }*/
+    else if( tmp == 3){
+        return true;
+    }
+    else{
+            return false;
+    }
+}
  
 /**************************
  * Main Function          *
