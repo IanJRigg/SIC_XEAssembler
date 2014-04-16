@@ -65,6 +65,8 @@ class sicxe_asm{
         bool p_bit;
         bool e_bit;
         
+        bool base_set;
+        
 	stringstream ss_error;
         stringstream stream;
 	vector<prog_listing> lines;
@@ -335,6 +337,15 @@ class sicxe_asm{
 	*Error handling: none							   *
 	****************************************************************************/
         void parse_operand(string, string&, string&);
+        
+        /***************************************************************************
+	*Method: process_forward_ref(string)      			           *
+	*Parameters: string operand reference                                      *
+	*Purpose: checks current operand against symbol table and replaces it      *
+	*Returns: None                                   			   *
+	*Error handling: none							   *
+	****************************************************************************/        
+        void sicxe_asm::process_forward_ref(string&);
 		
 };
 #endif
