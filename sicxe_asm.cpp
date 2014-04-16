@@ -32,12 +32,18 @@ sicxe_asm::~sicxe_asm(){}
 void sicxe_asm::assemble() {
 	try {
 		first_pass();
-                second_pass();
 	} catch (string error) {
-		cout << "Error in sicxe_asm::first_pass(): " 
-		<< "\n" << error << endl;
+		cout << "Error in sicxe_asm::first_pass(): \n"; 
+		cout << error << endl;
 		exit(1);
 	}
+    try{
+        second_pass();
+    } catch(string pass_two_err){
+        cout << "Error in sicxe_asm::second_pass(): \n";
+        cout << pass_two_err <<endl; 
+        exit(2);
+    }
 }
 
 /************************************************************
@@ -142,7 +148,25 @@ void sicxe_asm::first_pass(){
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
-        cout<<check_addr_mode(operand)<<" ";
+        while(symbol_table.in_symtab(operand) /*&& string_compare(opcode,"EQU")*/){
+            operand = symbol_table.get_value(operand);
+        } 
+        cout<< opcode << " is opcode; ";//OUT TO SHOW OPCODE
+        try{
+        /*Sets class variable op_size*/
+        if(!string_compare(opcode, " ") && !is_process_directive(opcode)){
+            op_size = opcode_table.get_instruction_size(opcode);
+        }
+        else{
+            op_size =0;
+        }
+        }
+        catch(opcode_error_exception op_err){
+            throw error_format(op_err.getMessage());
+        }
+        //MORE PRINT STATEMENTS
+        cout<<"opcode size is "<<op_size<<"; ";
+        cout<<check_addr_mode(operand)<<" is operand type for "<<operand<<endl;        
         row_num++;
     }
     cout<<endl;
@@ -544,7 +568,7 @@ int sicxe_asm::check_addr_mode(string operand){
         op2 = operand.substr(found+1, operand.size());
     }
     if(tmp == 2 || tmp == 1) {
-        return symbol_table.in_symtab(op1.substr(1,op1.size()-1))
+        return symbol_table.in_symtab(op1.substr(1,op1.size()-1));
     } 
     /*TODO: Add this as check for size 2.
     else if(symbol_table.in_symtab(op1) && in_regtab(op2)){
@@ -557,6 +581,23 @@ int sicxe_asm::check_addr_mode(string operand){
             return false;
     }
 }
+
+/*************************************************
+ *Verifies if the opcode is a processor directive*
+ *************************************************/
+ bool sicxe_asm::is_process_directive(string opcode){
+    
+    if(string_compare(opcode, "START") || string_compare(opcode,"BASE")|| 
+        string_compare(opcode, "RESW") || string_compare(opcode, "BYTE")||
+        string_compare(opcode, "WORD") || string_compare(opcode, "RESB")|| 
+        string_compare(opcode, "EQU") || string_compare(opcode, "END")){
+        return true;
+    }
+    else {
+        return false;
+        
+    }
+ }
  
 /**************************
  * Main Function          *

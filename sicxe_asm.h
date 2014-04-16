@@ -67,6 +67,7 @@ class sicxe_asm{
         int file_size;
         int starting_address;
         int prog_len;
+        int op_size;
 	symtab symbol_table;
 	opcodetab opcode_table;
 
@@ -300,6 +301,15 @@ class sicxe_asm{
 	*Error handling: none							   *
 	****************************************************************************/
 	bool validate_operand(string);
+        
+        /***************************************************************************
+	*Method: is_process_directive(string);					   *
+	*Parameters: string opcode						   *
+	*Purpose: To check if opcode is a processor directive				   *
+	*Returns: True, if opcode is directive, false otherwise			   *
+	*Error handling: none							   *
+	****************************************************************************/
+        bool sicxe_asm::is_process_directive(string opcode);
 		
 };
 #endif
