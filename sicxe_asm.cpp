@@ -145,13 +145,15 @@ void sicxe_asm::first_pass(){
  void sicxe_asm::second_pass(){
     row_num =0;
     while(row_num < file_size-1){
+        n_bit = false;
+        i_bit = false;
+        x_bit = false;
+        b_bit = false;
+        p_bit = false;
+        e_bit = false;
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
-        while(symbol_table.in_symtab(operand) /*&& string_compare(opcode,"EQU")*/){
-            operand = symbol_table.get_value(operand);
-        } 
-        cout<< opcode << " is opcode; ";//OUT TO SHOW OPCODE
         try{
         /*Sets class variable op_size*/
         if(!string_compare(opcode, " ") && !is_process_directive(opcode)){
@@ -164,12 +166,16 @@ void sicxe_asm::first_pass(){
         catch(opcode_error_exception op_err){
             throw error_format(op_err.getMessage());
         }
-        //MORE PRINT STATEMENTS
-        cout<<"opcode size is "<<op_size<<"; ";
-        cout<<check_addr_mode(operand)<<" is operand type for "<<operand<<endl;        
+        if(op_size>2){
+            operand = validate_tf_operand(operand);
+        }
+        while(symbol_table.in_symtab(operand)){
+            operand = symbol_table.get_value(operand);
+        }
+        cout<<address<<"-"<<opcode<<"-"<<operand;
+        cout<<"::flags:"<<n_bit<<i_bit<<x_bit<<b_bit<<p_bit<<e_bit<<endl; 
         row_num++;
     }
-    cout<<endl;
     /*TODO: Get opcode and size, read and validate the operand field
      *operand for size 3/4 =
         -Alpha
@@ -558,35 +564,50 @@ int sicxe_asm::check_addr_mode(string operand){
 /***********************************************************
 *Checks and confirms values in the operand field are valid.*  
  **********************************************************/
- bool sicxe_asm::validate_operand(string operand) {
+string sicxe_asm::validate_tf_operand(string operand) {
     string op1, op2;
     int tmp = check_addr_mode(operand);
     size_t found = operand.find(",");
-    op1 = operand.substr(0, found);
     if(found != std::string::npos){
-        op1 = operand.substr(0, found-1);
+        op1 = operand.substr(0, found);
         op2 = operand.substr(found+1, operand.size());
     }
+    else{
+        op1 = operand;
+    }
     if(tmp == 2 || tmp == 1) {
-        return symbol_table.in_symtab(op1.substr(1,op1.size()-1));
-    } 
-    /*TODO: Add this as check for size 2.
-    else if(symbol_table.in_symtab(op1) && in_regtab(op2)){
-        return true;
-    }*/
+        switch(tmp){
+            case 1:
+                i_bit = true;
+                break;
+            default:
+                n_bit = true;           
+        }
+        if(symbol_table.in_symtab(op1.substr(1,op1.size())))
+            return op1.substr(1,op1.size());
+        else if(isdigit(op1[1]))
+            return op1.substr(1,op1.size());
+    }
     else if( tmp == 3){
-        return true;
+        n_bit = true;
+        i_bit = true;
+        return op1.substr(1,op1.size());
     }
     else{
-            return false;
+        n_bit = true;
+        i_bit = true;
+        if(string_compare(op2,"x")){
+            x_bit = true;
+        }
+        return op1.substr(0,op1.size());
     }
+    return op1;
 }
 
 /*************************************************
  *Verifies if the opcode is a processor directive*
  *************************************************/
- bool sicxe_asm::is_process_directive(string opcode){
-    
+bool sicxe_asm::is_process_directive(string opcode){    
     if(string_compare(opcode, "START") || string_compare(opcode,"BASE")|| 
         string_compare(opcode, "RESW") || string_compare(opcode, "BYTE")||
         string_compare(opcode, "WORD") || string_compare(opcode, "RESB")|| 
@@ -598,6 +619,19 @@ int sicxe_asm::check_addr_mode(string operand){
         
     }
  }
+ 
+/**************************************
+ *validates the registers for format 2*
+ **************************************/
+bool sicxe_asm::validate_registers(string operand){
+    string r1;
+    string r2;
+    //parse_operand(operand, &r1, &r2);
+    
+    return true;
+} 
+ 
+  
  
 /**************************
  * Main Function          *
