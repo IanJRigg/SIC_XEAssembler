@@ -58,6 +58,13 @@ class sicxe_asm{
         string label;
         string m_code;
         
+        bool n_bit;
+        bool i_bit;
+        bool x_bit;
+        bool b_bit;
+        bool p_bit;
+        bool e_bit;
+        
 	stringstream ss_error;
         stringstream stream;
 	vector<prog_listing> lines;
@@ -300,16 +307,25 @@ class sicxe_asm{
 	*Returns: True, if operand is valid, false otherwise			   *
 	*Error handling: none							   *
 	****************************************************************************/
-	bool validate_operand(string);
+	string validate_tf_operand(string);
         
         /***************************************************************************
 	*Method: is_process_directive(string);					   *
 	*Parameters: string opcode						   *
-	*Purpose: To check if opcode is a processor directive				   *
+	*Purpose: To check if opcode is a processor directive	                   *
 	*Returns: True, if opcode is directive, false otherwise			   *
 	*Error handling: none							   *
 	****************************************************************************/
-        bool sicxe_asm::is_process_directive(string opcode);
+        bool is_process_directive(string);
+        
+        /***************************************************************************
+	*Method: validate_registers(string);					   *
+	*Parameters: string operand						   *
+	*Purpose: To check if registers are valid          		           *
+	*Returns: True, if registers are valid, false otherwise			   *
+	*Error handling: none							   *
+	****************************************************************************/ 
+        bool validate_registers(string);
 		
 };
 #endif
