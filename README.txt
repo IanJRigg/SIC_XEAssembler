@@ -56,3 +56,8 @@ All four instruction formats must be supported
 NO floating point operations or data
 
 NO object record files (only the listing file).
+
+
+
+We can create two functions for validating the operands, one to handle 3 and 4 and the other to handle 2.
+This should save us some function complexity with the operand check and the size check will happen outside the functions calls
