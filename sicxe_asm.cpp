@@ -567,14 +567,7 @@ int sicxe_asm::check_addr_mode(string operand){
 string sicxe_asm::validate_tf_operand(string operand) {
     string op1, op2;
     int tmp = check_addr_mode(operand);
-    size_t found = operand.find(",");
-    if(found != std::string::npos){
-        op1 = operand.substr(0, found);
-        op2 = operand.substr(found+1, operand.size());
-    }
-    else{
-        op1 = operand;
-    }
+    parse_operand(operand, op1, op2);
     if(tmp == 2 || tmp == 1) {
         switch(tmp){
             case 1:
@@ -629,9 +622,20 @@ bool sicxe_asm::validate_registers(string operand){
     //parse_operand(operand, &r1, &r2);
     
     return true;
-} 
- 
-  
+}
+
+/******************************************************************
+ *parses the operand into two reference variables                 *
+ *op1,op2 are uninitialized string variable passed in by reference*
+ ******************************************************************/
+void sicxe_asm::parse_operand(string operand, string &op1, string &op2){
+    size_t found = operand.find(",");
+    op1 = operand.substr(0, found);
+    if(found != std::string::npos){
+        op1 = operand.substr(0, found);
+        op2 = operand.substr(found+1, operand.size());
+    }
+}   
  
 /**************************
  * Main Function          *
