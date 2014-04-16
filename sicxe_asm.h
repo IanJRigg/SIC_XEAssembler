@@ -326,6 +326,15 @@ class sicxe_asm{
 	*Error handling: none							   *
 	****************************************************************************/ 
         bool validate_registers(string);
+        
+        /***************************************************************************
+	*Method: parse_operand(string, string&, string&);			   *
+	*Parameters: string operand, string reference1, string reference2          *
+	*Purpose: parses operand and passes changes to op1/op2 as references       *
+	*Returns: None                                   			   *
+	*Error handling: none							   *
+	****************************************************************************/
+        void parse_operand(string, string&, string&);
 		
 };
 #endif
