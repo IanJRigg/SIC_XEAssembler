@@ -122,8 +122,10 @@ void sicxe_asm::first_pass(){
         }
         int opcode_size =0;
         string errorflag="";
+        string check_opcode;
         try{
             opcode_size = opcode_table.get_instruction_size(opcode);
+            check_opcode = opcode_table.get_machine_code(opcode);
         } catch(opcode_error_exception ex){
             errorflag=ex.getMessage();            
         }
@@ -152,6 +154,12 @@ void sicxe_asm::first_pass(){
         b_bit = false;
         p_bit = false;
         e_bit = false;
+        a_reg = "0";
+        b_reg = "3";
+        x_reg = "1";
+        s_reg = "4";
+        t_reg = "5";
+        
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
@@ -167,8 +175,11 @@ void sicxe_asm::first_pass(){
         catch(opcode_error_exception op_err){
             throw error_format(op_err.getMessage());
         }
-
-        if(op_size>2){
+        if(op_size == 2){
+            if(!validate_registers(operand))
+                throw error_format("Invalid Register in operand");
+        }
+        else if(op_size>2){
             if(op_size == 4){
                 e_bit = true;
             }
@@ -591,13 +602,6 @@ string sicxe_asm::validate_tf_operand(string operand) {
         else if(isdigit(op1[1]))
             return op1.substr(1,op1.size());
     }
-    //Case 3 was removed after checking handout
-    /*
-    else if( tmp == 3){
-        n_bit = true;
-        i_bit = true;
-        return op1.substr(1,op1.size());
-    }*/
     else{
         process_forward_ref(operand);
         //Validate_operand_size(operand);
@@ -631,9 +635,21 @@ bool sicxe_asm::is_process_directive(string opcode){
  *validates the registers for format 2*
  **************************************/
 bool sicxe_asm::validate_registers(string operand){
-    string r1;
-    string r2;
-    //parse_operand(operand, &r1, &r2);
+    string r1 = " ";
+    string r2 = " ";
+    parse_operand(operand, r1, r2);
+    if(r2.compare(" ")==0){
+        if(!isdigit(r1[0])){
+           string tmp = check_registers(r1);
+           if(string_compare(tmp, "-1")){
+                return false;
+           }
+           lines.at(row_num).m_code = opcode_table.get_machine_code(opcode)+tmp+"0"; 
+        }
+        else{
+            
+        }
+    }
     
     return true;
 }
@@ -657,7 +673,31 @@ void sicxe_asm::process_forward_ref(string &operand){
     while(symbol_table.in_symtab(operand)){
             operand = symbol_table.get_value(operand);
     }
-}   
+}
+
+/****************************************
+ *validates if value given is a register*
+ ****************************************/
+string sicxe_asm::check_registers(string reg){
+    if(string_compare(reg, "a")){
+        return a_reg;
+    }
+    else if(string_compare(reg, "b")){
+        return b_reg;
+    }
+    else if(string_compare(reg,"x")){
+        return x_reg;
+    }
+    else if(string_compare(reg, "s")){
+        return s_reg;
+    }
+    else if(string_compare(reg,"t")){
+        return t_reg;
+    }
+    else
+        return "-1";
+}
+   
  
 /**************************
  * Main Function          *

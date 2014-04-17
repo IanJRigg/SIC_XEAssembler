@@ -58,6 +58,14 @@ class sicxe_asm{
         string label;
         string m_code;
         
+        //Registers
+        string a_reg;
+        string b_reg;
+        string x_reg;
+        string s_reg;
+        string t_reg;
+        
+        //Flags
         bool n_bit;
         bool i_bit;
         bool x_bit;
@@ -303,7 +311,7 @@ class sicxe_asm{
         int check_addr_mode(string);
 	
 	/***************************************************************************
-	*Method: validate_operand(string);					   *
+	*Method: validate_tf_operand(string);					   *
 	*Parameters: operand string						   *
 	*Purpose: To check the validity of the operands				   *
 	*Returns: True, if operand is valid, false otherwise			   *
@@ -345,7 +353,16 @@ class sicxe_asm{
 	*Returns: None                                   			   *
 	*Error handling: none							   *
 	****************************************************************************/        
-        void sicxe_asm::process_forward_ref(string&);
+        void process_forward_ref(string&);
+        
+        /***************************************************************************
+	*Method: check_registers(string)          			           *
+	*Parameters: string register                                               *
+	*Purpose: checks current register and returns register value               *
+	*Returns: value of register, -1 if invalid register    			   *
+	*Error handling: none							   *
+	****************************************************************************/
+        string check_registers(string);
 		
 };
 #endif
