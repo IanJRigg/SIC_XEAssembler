@@ -58,12 +58,22 @@ class sicxe_asm{
         string label;
         string m_code;
         
+        //Registers
+        string a_reg;
+        string b_reg;
+        string x_reg;
+        string s_reg;
+        string t_reg;
+        
+        //Flags
         bool n_bit;
         bool i_bit;
         bool x_bit;
         bool b_bit;
         bool p_bit;
         bool e_bit;
+        
+        bool base_set;
         
 	stringstream ss_error;
         stringstream stream;
@@ -301,7 +311,7 @@ class sicxe_asm{
         int check_addr_mode(string);
 	
 	/***************************************************************************
-	*Method: validate_operand(string);					   *
+	*Method: validate_tf_operand(string);					   *
 	*Parameters: operand string						   *
 	*Purpose: To check the validity of the operands				   *
 	*Returns: True, if operand is valid, false otherwise			   *
@@ -326,6 +336,33 @@ class sicxe_asm{
 	*Error handling: none							   *
 	****************************************************************************/ 
         bool validate_registers(string);
+        
+        /***************************************************************************
+	*Method: parse_operand(string, string&, string&);			   *
+	*Parameters: string operand, string reference1, string reference2          *
+	*Purpose: parses operand and passes changes to op1/op2 as references       *
+	*Returns: None                                   			   *
+	*Error handling: none							   *
+	****************************************************************************/
+        void parse_operand(string, string&, string&);
+        
+        /***************************************************************************
+	*Method: process_forward_ref(string)      			           *
+	*Parameters: string operand reference                                      *
+	*Purpose: checks current operand against symbol table and replaces it      *
+	*Returns: None                                   			   *
+	*Error handling: none							   *
+	****************************************************************************/        
+        void process_forward_ref(string&);
+        
+        /***************************************************************************
+	*Method: check_registers(string)          			           *
+	*Parameters: string register                                               *
+	*Purpose: checks current register and returns register value               *
+	*Returns: value of register, -1 if invalid register    			   *
+	*Error handling: none							   *
+	****************************************************************************/
+        string check_registers(string);
 		
 };
 #endif

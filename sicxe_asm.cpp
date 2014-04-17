@@ -18,6 +18,7 @@ sicxe_asm::sicxe_asm(string filename){
     row_num = 0;
     int_location_counter = 0;
     base = "-1";
+    base_set = false;
     starting_address = 0;
     prog_len = 0;
     assemble();
@@ -95,7 +96,7 @@ void sicxe_asm::first_pass(){
         label = parser.get_token(row_num, 0);
         operand = parser.get_token(row_num,2);
         address = int_to_hex(int_location_counter);
-        if(symbol_table.in_symtab(operand) /*&& string_compare(opcode,"EQU")*/){
+        if(symbol_table.in_symtab(operand)){
             operand = symbol_table.get_value(operand);
         }         
         store_line();
@@ -110,7 +111,7 @@ void sicxe_asm::first_pass(){
         }        
         if(!string_compare(label, " ") && !string_compare(opcode, "EQU")){
             try{
-            symbol_table.insert_symbol(label,"$"+address,"R");
+            symbol_table.insert_symbol(label,address,"R");
             }catch(symtab_exception symex){
                 throw error_format(symex.getMessage());
             }
@@ -121,8 +122,10 @@ void sicxe_asm::first_pass(){
         }
         int opcode_size =0;
         string errorflag="";
+        string check_opcode;
         try{
             opcode_size = opcode_table.get_instruction_size(opcode);
+            check_opcode = opcode_table.get_machine_code(opcode);
         } catch(opcode_error_exception ex){
             errorflag=ex.getMessage();            
         }
@@ -151,6 +154,12 @@ void sicxe_asm::first_pass(){
         b_bit = false;
         p_bit = false;
         e_bit = false;
+        a_reg = "0";
+        b_reg = "3";
+        x_reg = "1";
+        s_reg = "4";
+        t_reg = "5";
+        
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
@@ -166,12 +175,20 @@ void sicxe_asm::first_pass(){
         catch(opcode_error_exception op_err){
             throw error_format(op_err.getMessage());
         }
-        if(op_size>2){
+        if(op_size == 2){
+            if(!validate_registers(operand))
+                throw error_format("Invalid Register in operand");
+        }
+        else if(op_size>2){
+            if(op_size == 4){
+                e_bit = true;
+            }
             operand = validate_tf_operand(operand);
         }
-        while(symbol_table.in_symtab(operand)){
+        process_forward_ref(operand);
+        /*while(symbol_table.in_symtab(operand)){
             operand = symbol_table.get_value(operand);
-        }
+        }*/
         cout<<address<<"-"<<opcode<<"-"<<operand;
         cout<<"::flags:"<<n_bit<<i_bit<<x_bit<<b_bit<<p_bit<<e_bit<<endl; 
         row_num++;
@@ -412,9 +429,10 @@ int sicxe_asm::process_directives(){
     int count = 0;
     string orig_operand = operand;
     //Checks for and replaces forward reference in operand
-    if(symbol_table.in_symtab(operand)){
+    process_forward_ref(operand);    
+    /*if(symbol_table.in_symtab(operand)){
             operand = symbol_table.get_value(operand);
-        }
+        }*/
     //If start has already been declared, throw and error
     if(string_compare(opcode,"START")){
        if(starting_address !=0){
@@ -466,9 +484,11 @@ int sicxe_asm::process_directives(){
 void sicxe_asm::process_base(){
     if(string_compare(opcode,"BASE")){
         base=operand;
+        base_set = true;
     }
     else if(string_compare(opcode,"NOBASE")){
         base = "-1";
+        base_set = false;
     }
 }
 
@@ -553,9 +573,10 @@ int sicxe_asm::check_addr_mode(string operand){
     else if(string_compare(first_char, "@")){
         return 2;
     }
-    else if(string_compare(first_char, "$")){
+    //Addresses do not have a $ in front of them, verified with handout
+  /*  else if(string_compare(first_char, "$")){
         return 3;
-    }
+    }*/
     else{
         return 0;
     }    
@@ -567,14 +588,7 @@ int sicxe_asm::check_addr_mode(string operand){
 string sicxe_asm::validate_tf_operand(string operand) {
     string op1, op2;
     int tmp = check_addr_mode(operand);
-    size_t found = operand.find(",");
-    if(found != std::string::npos){
-        op1 = operand.substr(0, found);
-        op2 = operand.substr(found+1, operand.size());
-    }
-    else{
-        op1 = operand;
-    }
+    parse_operand(operand, op1, op2);
     if(tmp == 2 || tmp == 1) {
         switch(tmp){
             case 1:
@@ -588,18 +602,15 @@ string sicxe_asm::validate_tf_operand(string operand) {
         else if(isdigit(op1[1]))
             return op1.substr(1,op1.size());
     }
-    else if( tmp == 3){
-        n_bit = true;
-        i_bit = true;
-        return op1.substr(1,op1.size());
-    }
     else{
+        process_forward_ref(operand);
+        //Validate_operand_size(operand);
         n_bit = true;
         i_bit = true;
         if(string_compare(op2,"x")){
             x_bit = true;
         }
-        return op1.substr(0,op1.size());
+        return operand;
     }
     return op1;
 }
@@ -624,14 +635,69 @@ bool sicxe_asm::is_process_directive(string opcode){
  *validates the registers for format 2*
  **************************************/
 bool sicxe_asm::validate_registers(string operand){
-    string r1;
-    string r2;
-    //parse_operand(operand, &r1, &r2);
+    string r1 = " ";
+    string r2 = " ";
+    parse_operand(operand, r1, r2);
+    if(r2.compare(" ")==0){
+        if(!isdigit(r1[0])){
+           string tmp = check_registers(r1);
+           if(string_compare(tmp, "-1")){
+                return false;
+           }
+           lines.at(row_num).m_code = opcode_table.get_machine_code(opcode)+tmp+"0"; 
+        }
+        else{
+            
+        }
+    }
     
     return true;
-} 
- 
-  
+}
+
+/******************************************************************
+ *parses the operand into two reference variables                 *
+ *op1,op2 are uninitialized string variable passed in by reference*
+ ******************************************************************/
+void sicxe_asm::parse_operand(string operand, string &op1, string &op2){
+    size_t found = operand.find(",");
+    op1 = operand.substr(0, found);
+    if(found != std::string::npos){
+        op1 = operand.substr(0, found);
+        op2 = operand.substr(found+1, operand.size());
+    }
+}
+/******************************************************
+ * Processes forward directives for referenced operand*
+ ******************************************************/
+void sicxe_asm::process_forward_ref(string &operand){
+    while(symbol_table.in_symtab(operand)){
+            operand = symbol_table.get_value(operand);
+    }
+}
+
+/****************************************
+ *validates if value given is a register*
+ ****************************************/
+string sicxe_asm::check_registers(string reg){
+    if(string_compare(reg, "a")){
+        return a_reg;
+    }
+    else if(string_compare(reg, "b")){
+        return b_reg;
+    }
+    else if(string_compare(reg,"x")){
+        return x_reg;
+    }
+    else if(string_compare(reg, "s")){
+        return s_reg;
+    }
+    else if(string_compare(reg,"t")){
+        return t_reg;
+    }
+    else
+        return "-1";
+}
+   
  
 /**************************
  * Main Function          *
