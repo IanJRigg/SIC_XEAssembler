@@ -390,6 +390,8 @@ class sicxe_asm{
 	*Error handling: None                                                       *
 	*****************************************************************************/
         bool need_base(string);
+	
+	bool validate_operand_size(string);
 		
 };
 #endif
