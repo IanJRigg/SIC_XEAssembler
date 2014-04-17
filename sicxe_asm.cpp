@@ -21,8 +21,8 @@ sicxe_asm::sicxe_asm(string filename){
     base_set = false;
     starting_address = 0;
     prog_len = 0;
-    assemble();
-    
+    op_size = -1;
+    assemble(); 
 }
 
 sicxe_asm::~sicxe_asm(){}
@@ -163,29 +163,41 @@ void sicxe_asm::first_pass(){
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
-        try{
-        /*Sets class variable op_size*/
+
+        // Errors in commands found in pass_one, what follows has to be valid
+       	// if the opcode is format 1 - 4, set op_size
         if(!string_compare(opcode, " ") && !is_process_directive(opcode)){
             op_size = opcode_table.get_instruction_size(opcode);
         }
+        // a directive is found
         else{
-            op_size =0;
+            op_size = 0;
         }
-        }
-        catch(opcode_error_exception op_err){
-            throw error_format(op_err.getMessage());
-        }
-        if(op_size == 2){
-            if(!validate_registers(operand))
-                throw error_format("Invalid Register in operand");
-        }
-        else if(op_size>2){
-            if(op_size == 4){
-                e_bit = true;
-            }
-            operand = validate_tf_operand(operand);
-        }
-        process_forward_ref(operand);
+		switch(op_size){
+			case 1:
+				//process format1
+				break;
+			case 2:
+				//process format2
+				break;
+			case 3: case 4: // process format 3 and 4
+				operand = validate_tf_operand(operand);
+				process_forward_ref(operand);
+				if(op_size == 4){
+					// b_bit and p_bit already 0 here
+               		e_bit = true;
+            	}
+            	else{
+            		//e_bit is already false
+            		// need to set the 
+            		need_base(operand);
+            	}
+				break;
+
+			default:
+				break;
+				// assembler directive	
+		}
         /*while(symbol_table.in_symtab(operand)){
             operand = symbol_table.get_value(operand);
         }*/
@@ -193,6 +205,7 @@ void sicxe_asm::first_pass(){
         cout<<"::flags:"<<n_bit<<i_bit<<x_bit<<b_bit<<p_bit<<e_bit<<endl; 
         row_num++;
     }
+
     /*TODO: Get opcode and size, read and validate the operand field
      *operand for size 3/4 =
         -Alpha
@@ -697,7 +710,29 @@ string sicxe_asm::check_registers(string reg){
     else
         return "-1";
 }
-   
+/************************************************
+* Determines which offset handler is to be used *
+************************************************/
+
+// CURRENT ERRORS WITH NEED BASE!!!!!!!!!!!!!!!!!!!!!!
+
+// target_location needs to be intialized
+// parse_operand needs to be declared or renamed
+bool sicxe_asm::need_base(string operand){
+	// get the current address and the address in the opcode
+	// subtract the two and check if they're valid for PC relative
+	int curr_addr = hex_to_int(lines.at(row_num).address);
+	int operand_addr = hex_to_int(parse_operand(operand));
+	target_location = operand_addr - curr_addr;
+	if(target_location =< 2047 || target_location >= -2048){
+		return false;
+	}
+	if(base.compare("-1") == 0){
+		throw error_format(""); // NEED THE PROPER CALL HERE!!!!!
+	}
+	return true;
+}
+
  
 /**************************
  * Main Function          *
