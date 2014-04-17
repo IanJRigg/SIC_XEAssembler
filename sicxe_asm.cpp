@@ -183,6 +183,7 @@ void sicxe_asm::first_pass(){
                 if(!validate_registers(operand)){
                     throw error_format("Invalid Register in operand::"+operand);
                 }
+                break;
             case 3:
             case 4:
                 operand = validate_tf_operand(operand);
@@ -204,23 +205,6 @@ void sicxe_asm::first_pass(){
                 break;
         
         }
-        /*if(op_size == 1){
-            process_format_one(opcode);
-        }
-        else if(op_size == 2){
-            if(!validate_registers(operand))
-                throw error_format("Invalid Register in operand::"+operand);
-        }
-        else if(op_size>2){
-            if(op_size == 4){
-                e_bit = true;
-            }
-            operand = validate_tf_operand(operand);
-        }
-        process_forward_ref(operand);
-        while(symbol_table.in_symtab(operand)){
-            operand = symbol_table.get_value(operand);
-        }*/
         cout<<address<<"-"<<opcode<<"-"<<operand;
         cout<<"::flags:"<<n_bit<<i_bit<<x_bit<<b_bit<<p_bit<<e_bit<<endl; 
         row_num++;
@@ -233,8 +217,6 @@ void sicxe_asm::first_pass(){
         -#2  Constant value
         - Alpha, x - for LDX command
         -Blank  - Some functions take no operands
-    -format 1 = Operand should be blank
-    -format 2 = create register table to verify format2
     Verify size limits
     Calculate and set nixbpe flags
     */
@@ -605,10 +587,6 @@ int sicxe_asm::check_addr_mode(string operand){
     else if(string_compare(first_char, "@")){
         return 2;
     }
-    //Addresses do not have a $ in front of them, verified with handout
-  /*  else if(string_compare(first_char, "$")){
-        return 3;
-    }*/
     else{
         return 0;
     }    
@@ -669,18 +647,42 @@ bool sicxe_asm::is_process_directive(string opcode){
 bool sicxe_asm::validate_registers(string operand){
     string r1 = " ";
     string r2 = " ";
+    string op_machine_code = opcode_table.get_machine_code(opcode);
     parse_operand(operand, r1, r2);
     if(r2.compare(" ")==0){
         if(!isdigit(r1[0])){
-           string tmp = check_registers(r1);
-           if(string_compare(tmp, "-1")){
+            string tmp = check_registers(r1);
+            if(string_compare(tmp, "-1")){
                 return false;
-           }
-           lines.at(row_num).m_code = opcode_table.get_machine_code(opcode)+tmp+"0    "; 
+            }
+            lines.at(row_num).m_code = op_machine_code+tmp+"0    "; 
         }
         else{
-            
+            stream<<hex<<string_to_int(r1);
+            r1 = stream.str();
+            stream.str("");
+            r1= to_uppercase(r1);
+            lines.at(row_num).m_code = op_machine_code+r1+"0    ";
         }
+    }
+    else{
+        if(!isdigit(r2[0])){
+            r1 = check_registers(r1);
+            r2 = check_registers(r2);
+            lines.at(row_num).m_code = op_machine_code+r1+r2+"    ";
+        }
+        else{
+            r1 = check_registers(r1);
+            int tmp = dec_to_int(r2);
+            tmp = tmp-1;
+            if(tmp<0){
+                throw error_format("Invalid shift value in operand::"+operand);
+            }
+            stream<<r1<<tmp;
+            r1 = stream.str();
+            stream.str("");
+            lines.at(row_num).m_code = op_machine_code+r1+"    ";
+        }        
     }
     
     return true;
