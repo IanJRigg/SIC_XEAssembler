@@ -364,5 +364,16 @@ class sicxe_asm{
 	****************************************************************************/
         string check_registers(string);
 		
+    /****************************************************************************
+	*Method: need_base(string)
+	*Parameters: Operand in question
+	*Determines the offset needed for an instruction and determines which offset
+	*	mode to use.
+	*Returns: True if base mode is needed
+	*		: False if PC relative is needed
+	*Error handling: None
+	*****************************************************************************/
+		bool need_base(string);
+
 };
 #endif

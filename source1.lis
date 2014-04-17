@@ -1,0 +1,29 @@
+                              **source1**
+   Line#        Address          Label         Opcode        Operand
+   =====        =======          =====         ======        =======
+       1          00000                                             
+       2          00000                                             
+       3          00000                                             
+       4          00000                                             
+       5          00000                                             
+       6          00000                                             
+       7          00000        source1          start          $1000
+       8          01000                           lds             #3
+       9          01003                           ldt           #300
+      10          01006                           ldx             #0
+      11          01009          addlf            lda        alpha,x
+      12          0100C                           add         beta,x
+      13          0100F                           sta        gamma,x
+      14          01012                          addr            s,x
+      15          01014                         compr            x,t
+      16          01016                           jlt          addlp
+      17          01019                                             
+      18          01019       testthis                              
+      19          01019                                             
+      20          01019                                             
+      21          01019          alpha           resw            100
+      22          01145           beta           resw            100
+      23          01271          gamma           resw            100
+      24          0139D          happy           BYTE        x'1000'
+      25          0139F         happy2           BYTE        c'1000'
+      26          013A3                           end        source1
