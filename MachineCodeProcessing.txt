@@ -1,0 +1,73 @@
+/*
+void sicxe_asm::set_flags(){
+	string opernd = lines.at(row_nbum).operand;
+	int addr_mode = check_addr_mode(opernd);
+	// N and I bit processing
+	if(addr_mode == 2){
+		n_bit = 1;
+		i_bit = 0;
+	}
+	else if(addr_mode == 1){
+		n_bit = 0;
+		i_bit = 1;
+	}
+	else{
+		n_bit = 1;
+		i_bit = 1;
+	}
+	// X bit processing
+	if(two_operands(opernd)){
+		x_bit = 1
+	}
+	else{
+		x_bit = 0
+	}
+
+	// begin format 4 processing
+	// if format 4 is used by the programmer, set target_location and flags
+	if(evaluate_format4()){ 
+		e_bit = 1
+		b_bit = 0
+		p_bit = 0
+		return;
+	}
+	// End of format 4 processing
+
+	// Begin format 3 processing
+	else{
+		e_bit = 0
+	}
+	//Evaluates the current location counter with the address in the operand
+	// field. If the offset is greateer than the allotted 11 bits base mode 
+	if(need_base(opernd) )
+		p_bit = 1
+		b_bit = 0
+	else
+		p_bit = 0
+		b_bit = 1
+	// end of format 3 processing
+	return
+}
+*/
+
+/*
+bool sicxe::asm need_base(string operand){
+	// get the current address and the address in the opcode
+	// subtract the two and check if they're valid for PC relative
+	int curr_addr = hex_to_int(lines.at(row_num).address);
+	int operand_addr = hex_to_int(parse_operand(operand));
+	target_location = operand_addr - curr_addr;
+	if(target_location =< 2047 || target_location >= -2048){
+		return false;
+	}
+	if(base.compare("-1") == 0){
+		throw error; // NEED THE PROPER CALL HERE!!!!!
+	}
+	return true;
+}
+
+bool sicxe_asm::evaluate_format4(){
+	// Get the copy from skype for split method
+	target_location = hex_to_int(parse_operand(lines.at(row_num).operand));
+}
+*/

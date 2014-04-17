@@ -42,12 +42,16 @@ class sicxe_asm{
 		string opcode;
 		string operand;
                 string m_code;
+                int op_size;
+                string op_hex;
 		prog_listing():  line_number(" "),
 				 address(" "),
 				 label(" "),
 				 opcode(" "),
 				 operand(" "),
-                                 m_code(" "){}
+                                 m_code(" ")/*,
+                                 op_size(0),
+                                 op_hex(" ")*/{}
 	};
         string lis_filename;
         string in_filename;
@@ -57,6 +61,8 @@ class sicxe_asm{
         string operand;
         string label;
         string m_code;
+        string op_hex;
+        string base;
         
         //Registers
         string a_reg;
@@ -80,11 +86,12 @@ class sicxe_asm{
 	vector<prog_listing> lines;
 	int row_num;
         int int_location_counter;
-        string base;
         int file_size;
         int starting_address;
         int prog_len;
         int op_size;
+        int target_location;        
+        
 	symtab symbol_table;
 	opcodetab opcode_table;
 
@@ -363,6 +370,26 @@ class sicxe_asm{
 	*Error handling: none							   *
 	****************************************************************************/
         string check_registers(string);
+        
+        /***************************************************************************
+	*Method: process_format_one(string)          			           *
+	*Parameters: string opcode                                                 *
+	*Purpose: Checks if instruction has operand, if not sets m_code            *
+	*Returns: None                                  			   *
+	*Error handling: Throws if opcode has an operand         		   *
+	****************************************************************************/
+        void process_format_one(string);
+        
+        /****************************************************************************
+	*Method: need_base(string)                                                  *
+	*Parameters: Operand in question                                            *
+	*Determines the offset needed for an instruction and determines which offset*
+	*	mode to use.                                                        *
+	*Returns: True if base mode is needed                                       *
+	*	  False if PC relative is needed                                    *
+	*Error handling: None                                                       *
+	*****************************************************************************/
+        bool need_base(string);
 		
 };
 #endif
