@@ -765,9 +765,10 @@ bool sicxe_asm::need_base(string operand){
 }
 
 bool sicxe_asm::validate_operand_size(string operand) {
+    int tmp = string_to_int(operand.substr(1,operand.size()));
 	if(op_size == 4) {
-		if(!isdigit(operand[0]))
-			return -524288 <= string_to_int(operand.substr(1,operand.size())) <= 524287;
+		if(!isdigit(operand[0]))            
+			return ((-524288 <= tmp)&&(tmp <= 524287));
 		else if(isdigit(operand[0]))
 			return (string_to_int(operand) <= 1048575);
 		else 
@@ -775,7 +776,7 @@ bool sicxe_asm::validate_operand_size(string operand) {
 	}
 	if(op_size == 3) {
 		if(!isdigit(operand[0]))
-			return -2048 <= string_to_int(operand.substr(1,operand.size())) <= 2047 ;
+			return ((-2048 <= tmp)&&(tmp <= 2047)) ;
 		else if(isdigit(operand[0]))
 			return (string_to_int(operand) <= 4095);
 		else
