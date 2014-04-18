@@ -614,7 +614,8 @@ string sicxe_asm::validate_tf_operand(string operand) {
     }
     else{
         process_forward_ref(operand);
-        //Validate_operand_size(operand);
+        cout<<validate_operand_size(operand)<<" ";
+	cout<<op_size<<" ";
         n_bit = true;
         i_bit = true;
         if(string_compare(op2,"x")){
@@ -762,7 +763,26 @@ bool sicxe_asm::need_base(string operand){
 	}
 	return true;
 }
-   
+
+bool sicxe_asm::validate_operand_size(string operand) {
+	if(op_size == 4) {
+		if(!isdigit(operand[0]))
+			return -524288 <= string_to_int(operand.substr(1,operand.size())) <= 524287;
+		else if(isdigit(operand[0]))
+			return (string_to_int(operand) <= 1048575);
+		else 
+			return false;
+	}
+	if(op_size == 3) {
+		if(!isdigit(operand[0]))
+			return -2048 <= string_to_int(operand.substr(1,operand.size())) <= 2047 ;
+		else if(isdigit(operand[0]))
+			return (string_to_int(operand) <= 4095);
+		else
+			return false;
+	}
+	return false;
+}   
  
 /**************************
  * Main Function          *
