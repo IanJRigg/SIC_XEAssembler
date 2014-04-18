@@ -162,7 +162,6 @@ void sicxe_asm::first_pass(){
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
-        //TODO:: SET GLOBALS TO HANDLE OPSIZE IN PASS ONE!!!!!!!
         try{
         /*Sets class variable op_size*/
         if(!string_compare(opcode, " ") && !is_process_directive(opcode)){
@@ -217,7 +216,6 @@ void sicxe_asm::first_pass(){
         -#2  Constant value
         - Alpha, x - for LDX command
         -Blank  - Some functions take no operands
-    Verify size limits
     Calculate and set nixbpe flags
     */
     print_file();
@@ -443,10 +441,7 @@ int sicxe_asm::process_directives(){
     int count = 0;
     string orig_operand = operand;
     //Checks for and replaces forward reference in operand
-    process_forward_ref(operand);    
-    /*if(symbol_table.in_symtab(operand)){
-            operand = symbol_table.get_value(operand);
-        }*/
+    process_forward_ref(operand); 
     //If start has already been declared, throw and error
     if(string_compare(opcode,"START")){
        if(starting_address !=0){
@@ -599,6 +594,10 @@ string sicxe_asm::validate_tf_operand(string operand) {
     string op1, op2;
     int tmp = check_addr_mode(operand);
     parse_operand(operand, op1, op2);
+    //Catches if operand was only a # or @ symbol
+    if(string_compare(op1,"#")||string_compare(op1,"@")){
+            throw error_format("Invalid Operand::"+op1);
+    }
     if(tmp == 2 || tmp == 1) {
         switch(tmp){
             case 1:
@@ -613,16 +612,18 @@ string sicxe_asm::validate_tf_operand(string operand) {
             return op1.substr(1,op1.size());
     }
     else{
-        process_forward_ref(operand);
-        cout<<validate_operand_size(operand)<<" ";
-	cout<<op_size<<" ";
+        process_forward_ref(op1);
+        /*If operand is out of appropriate size range for 3 or 4 it throws an error*/
+        if(!validate_operand_size(op1)){
+            throw error_format("Operand value is invalid::\'"+op1+"\'");
+        }
         n_bit = true;
         i_bit = true;
         if(string_compare(op2,"x")){
             x_bit = true;
         }
         return operand;
-    }
+    }    
     return op1;
 }
 
@@ -700,6 +701,7 @@ void sicxe_asm::parse_operand(string operand, string &op1, string &op2){
         op1 = operand.substr(0, found);
         op2 = operand.substr(found+1, operand.size());
     }
+    
 }
 /******************************************************
  * Processes forward directives for referenced operand*
@@ -764,25 +766,40 @@ bool sicxe_asm::need_base(string operand){
 	return true;
 }
 
+/****************************************************
+ *Verifies that the operands size is within range   *
+ ****************************************************/
 bool sicxe_asm::validate_operand_size(string operand) {
+    if(string_compare(opcode,"rsub")){
+        if(operand.compare(" ")==0){
+            return true;
+        }
+        return false;        
+    }
     int tmp = string_to_int(operand.substr(1,operand.size()));
-	if(op_size == 4) {
-		if(!isdigit(operand[0]))            
-			return ((-524288 <= tmp)&&(tmp <= 524287));
-		else if(isdigit(operand[0]))
-			return (string_to_int(operand) <= 1048575);
-		else 
-			return false;
-	}
-	if(op_size == 3) {
-		if(!isdigit(operand[0]))
-			return ((-2048 <= tmp)&&(tmp <= 2047)) ;
-		else if(isdigit(operand[0]))
-			return (string_to_int(operand) <= 4095);
-		else
-			return false;
-	}
-	return false;
+    if(op_size == 4) {        
+        if(!isdigit(operand[0])){            
+            return ((lower_op_four_size <= tmp)&&(tmp <= upper_op_four_size));
+        }
+	else if(isdigit(operand[0]) && is_hex(operand)){
+	    return ((hex_to_int(operand)==0) || (hex_to_int(operand) <= constant_max_four));
+        }        
+	else{ 
+	    return false;
+        }
+    }
+    if(op_size == 3) {
+        if(!isdigit(operand[0])){
+	    return ((lower_op_three_size <= tmp)&&(tmp <= upper_op_three_size)) ;
+        }
+        else if(isdigit(operand[0]) && is_hex(operand)){
+	    return ((hex_to_int(operand)==0) || (hex_to_int(operand) <= constant_max_three));
+        }
+	else{
+	    return false;
+        }
+    }
+    return false;
 }   
  
 /**************************
