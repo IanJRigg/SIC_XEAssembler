@@ -24,6 +24,12 @@
 
 
 #define WORD_SIZE 3
+#define lower_op_four_size -524288
+#define upper_op_four_size 524287
+#define lower_op_three_size -2048
+#define upper_op_three_size 2047
+#define constant_max_four 1048575
+#define constant_max_three 4095
 class sicxe_asm{
     public: 
         sicxe_asm(string);
