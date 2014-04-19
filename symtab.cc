@@ -22,10 +22,14 @@ bool symtab::in_symtab(string key){
 }
 
 /**To be defined in project 4*/
-int symtab::check_flag(string key){return 0;}
+string symtab::check_flag(string key){
+    return (symbol_table.find(to_uppercase(key))->second.second);
+}
 
 /**To be defined in project 4*/
-void symtab::set_flag(string key){}
+void symtab::set_flag(string key, string flag){
+    symbol_table.find(to_uppercase(key))->second.second = flag;
+}
 
 string symtab::get_value(string key){
     if(!in_symtab(to_uppercase(key)))

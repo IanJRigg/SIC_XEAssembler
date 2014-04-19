@@ -1,0 +1,31 @@
+                              **source1**
+   Line#        Address          Label         Opcode         Operand   Machine Code
+   =====        =======          =====         ======         =======   ============
+       1          00000                                                        
+       2          00000                                                        
+       3          00000                                                        
+       4          00000                                                        
+       5          00000                                                        
+       6          00000                                                        
+       7          00000        source1          start           $1000          
+       8          01000                           lds              #3          
+       9          01003                           ldt            #300          
+      10          01006                           ldx              #0          
+      11          01009                           ldb            beta          
+      12          0100C                          base            beta          
+      13          0100C          addlf            lda         alpha,x          
+      14          0100F                           add          beta,x          
+      15          01012                           sta         gamma,x          
+      16          01015                          addr             s,x  9041    
+      17          01017                         compr             x,t  A015    
+      18          01019                           jlt           addlp          
+      19          0101C                                                        
+      20          0101C       testthis                                         
+      21          0101C                                                        
+      22          0101C                                                        
+      23          0101C          alpha           resw             100          
+      24          01148           beta           resw             100          
+      25          01274          gamma           resw             100          
+      26          013A0          happy           BYTE         x'1000'          
+      27          013A2         happy2           BYTE         c'1000'          
+      28          013A6                           end         source1          

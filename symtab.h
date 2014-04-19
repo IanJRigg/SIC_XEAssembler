@@ -35,14 +35,14 @@ class symtab{
                  * Absolute = return 0
                  *TO BE DEFINED IN PROG4  
                  */
-                int check_flag(string);
+                string check_flag(string);
                  
                 /**Sets the flag if value is relative address or absolute value
                   * Relative = 1
                   * Absolute = 0                  
                   *TO BE DEFINED IN PROG4
                   */
-                void set_flag(string);
+                void set_flag(string, string);
                 
                 /**Checks if value exists in symbol table*/
 		bool in_symtab(string);

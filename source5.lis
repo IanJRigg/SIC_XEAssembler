@@ -1,0 +1,28 @@
+                              **source5**
+   Line#        Address          Label         Opcode         Operand   Machine Code
+   =====        =======          =====         ======         =======   ============
+       1          00000                                                        
+       2          00000                                                        
+       3          00000                                                        
+       4          00000        source5          start               0          
+       5          00000           test            lds #3'checking this out'          
+       6          00003                           ldt     #5242880000          
+       7          00006                           ldx              #0          
+       8          00009          addlf            lda         alpha,x          
+       9          0000C                           add          beta,x          
+      10          0000F                           sta         gamma,x          
+      11          00012                          addr             s,x          
+      12          00014                         compr             x,t          
+      13          00016                           jlt           addlf          
+      14          00019                                                        
+      15          00019       labeltes                                         
+      16          00019                                                        
+      17          00019                                                        
+      18          00019                                                        
+      19          00019                                                        
+      20          00019                                                        
+      21          00019                                                        
+      22          00019          alpha           resw             100          
+      23          00145           beta           resw             100          
+      24          00271          gamma           resw             100          
+      25          0039D                           end         source5          

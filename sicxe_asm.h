@@ -396,8 +396,12 @@ class sicxe_asm{
 	*Error handling: None                                                       *
 	*****************************************************************************/
         bool need_base(string);
+
+        void process_format_three(string);
+
+        void process_format_four(string);
 	
-	bool validate_operand_size(string);
+		bool validate_operand_size(string);
 		
 };
 #endif
