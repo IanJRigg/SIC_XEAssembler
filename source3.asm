@@ -15,7 +15,7 @@ test    EQU     bsrch
         ldx     @zeta   
 first   NORM  
         SVC     13  
-        HIO     test
+        HIO     test3
         ldt     #alpha
         +ldt     #foo
         lda     @alpha

@@ -184,25 +184,14 @@ void sicxe_asm::first_pass(){
                 }
                 break;
             case 3:
+                process_format_three(operand);
+                break;
             case 4:
-                operand = validate_tf_operand(operand);
-                process_forward_ref(operand);
+                process_format_three(operand);
                 //THIS NEEDS TO HANDLE CONSTANTS FOR FORMAT 4
-                if(op_size ==4){
-                    e_bit = true;
-                }
-                else{                    
-                    if(need_base(operand)){
-                        b_bit = true;
-                    }
-                    else{
-                        p_bit = true;
-                    }
-                }
                 break;
             default:
                 break;
-        
         }
         cout<<address<<"-"<<opcode<<"-"<<operand;
         cout<<"::flags:"<<n_bit<<i_bit<<x_bit<<b_bit<<p_bit<<e_bit<<endl; 
@@ -614,15 +603,15 @@ string sicxe_asm::validate_tf_operand(string operand) {
     else{
         process_forward_ref(op1);
         /*If operand is out of appropriate size range for 3 or 4 it throws an error*/
-        if(!validate_operand_size(op1)){
+        /*if(!validate_operand_size(op1)){
             throw error_format("Operand value is invalid::\'"+op1+"\'");
-        }
+        }*/
         n_bit = true;
         i_bit = true;
         if(string_compare(op2,"x")){
             x_bit = true;
         }
-        return operand;
+        //return op1;
     }    
     return op1;
 }
@@ -745,27 +734,6 @@ void sicxe_asm::process_format_one(string opcode){
     lines.at(row_num).m_code = opcode_table.get_machine_code(opcode)+"      ";
 }
 
-/************************************************
-* Determines which offset handler is to be used *
-************************************************/
-// CURRENT ERRORS WITH NEED BASE!!!!!!!!!!!!!!!!!!!!!!
-// target_location needs to be intialized
-// parse_operand needs to be declared or renamed
-bool sicxe_asm::need_base(string operand){
-	// get the current address and the address in the opcode
-	// subtract the two and check if they're valid for PC relative        
-	int curr_addr = hex_to_int(lines.at(row_num).address);
-	int operand_addr = hex_to_int(operand);
-	target_location = operand_addr - curr_addr;
-	if(target_location <= 2047 || target_location >= -2048){
-		return false;
-	}
-	if(base.compare("-1") == 0){
-		throw error_format(""); // NEED THE PROPER CALL HERE!!!!!
-	}
-	return true;
-}
-
 /****************************************************
  *Verifies that the operands size is within range   *
  ****************************************************/
@@ -790,10 +758,10 @@ bool sicxe_asm::validate_operand_size(string operand) {
     }
     if(op_size == 3) {
         if(!isdigit(operand[0])){
-	    return ((lower_op_three_size <= tmp)&&(tmp <= upper_op_three_size)) ;
+	       return ((lower_op_three_size <= tmp)&&(tmp <= upper_op_three_size)) ;
         }
         else if(isdigit(operand[0]) && is_hex(operand)){
-	    return ((hex_to_int(operand)==0) || (hex_to_int(operand) <= constant_max_three));
+	       return ((hex_to_int(operand)==0) || (hex_to_int(operand) <= constant_max_three));
         }
 	else{
 	    return false;
@@ -802,6 +770,72 @@ bool sicxe_asm::validate_operand_size(string operand) {
     return false;
 }   
  
+/************************************************
+* Determines which offset handler is to be used *
+************************************************/
+bool sicxe_asm::need_base(string op){
+    // get the current address and the address in the opcode
+    // subtract the two and check if they're valid for PC relative 
+    int curr_addr = hex_to_int(lines.at(row_num).address);
+    int ope = hex_to_int(op);
+
+    //  offset = destination - source + 3
+    target_location = ope - curr_addr + 3;
+    if(target_location <= 2047 && target_location > -2048){
+        return false;
+    }
+    if(base.compare("-1") == 0){
+        throw error_format("Address offset too large for PC relative mode.");
+    }
+    return true;
+}
+/************************************************
+* Returns a coded integer for the first char in the opcode
+************************************************/
+void sicxe_asm::process_format_three(string oprnd){
+    string oper = validate_tf_operand(oprnd);
+    int op; // Used to store the operand if it's an immediate value
+    int modifier = check_addr_mode(oprnd);
+    switch(modifier){
+        case 1:
+            //Put the value of the operand into op and check it for validity
+            stringstream(operand.substr(1, string::npos)) >> op;
+            if(op > 2047 || op < -2048){ // limits for format3
+                throw error_format("Format 3 operand must be between -2048 and 2047");
+            }
+            target_location = op;
+            break;
+        default:
+            if(need_base(oper)){ // offset too large for PC relative
+                b_bit = true;
+                // destination - source + 3
+                target_location = (hex_to_int(base)) - (hex_to_int(oper));
+                if(target_location < 0){
+                    throw error_format("Base mode cannot handle backwards references");
+                }
+            }
+            else{
+                p_bit = true;
+            }
+    }
+}
+
+void sicxe_asm::process_format_four(string oprnd){
+    string oper = validate_tf_operand(oprnd);
+    int modifier = check_addr_mode(oper);
+    if(modifier == 1){
+        int op; // decimal 
+        stringstream(operand.substr(1, string::npos)) >> op;
+        if(op > 524287 || op < -524288){ // limits for format3
+            throw error_format("Operand must be between -2048 and 2047");
+        }
+        target_location = op;
+        // treat as immediate value
+        // throw if greater than 2 ^ 20
+    }
+    e_bit = true;
+}
+
 /**************************
  * Main Function          *
  **************************/
