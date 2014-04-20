@@ -184,8 +184,15 @@ void sicxe_asm::first_pass(){
             if(string_compare(operand.substr(0,1),"x")){
                 lines.at(row_num).m_code = operand.substr(2,operand.size()-3);
             }
-            else{            
-                //TODO HANDLE FOR c'XXX' case!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            else{
+		string tmmp;
+		string tempor = operand.substr(2, operand.size()-3);
+		for(unsigned int i = 0; i < tempor.size(); i++) {
+			int ascii = (int)tempor[i];
+			tmmp.append(int_to_hex(ascii).substr(3,2));
+		}
+		lines.at(row_num).m_code = tmmp;
+		
             }
         } 
         string orig_operand=operand;
