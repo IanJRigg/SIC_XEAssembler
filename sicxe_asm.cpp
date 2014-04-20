@@ -180,25 +180,34 @@ void sicxe_asm::first_pass(){
         if(string_compare(opcode,"word")){
             lines.at(row_num).m_code = "0"+int_to_hex(dec_to_int(operand));
         }        
-        if(string_compare(opcode,"byte")){
+        else if(string_compare(opcode,"byte")){
+            //Process the hex byte directives
             if(string_compare(operand.substr(0,1),"x")){
+                if(!is_hex(operand.substr(2,operand.size()-3))){
+                    throw error_format("Invalid hexidecimal character");
+                }
                 lines.at(row_num).m_code = operand.substr(2,operand.size()-3);
             }
-            else{
-		string tmmp;
-		string tempor = operand.substr(2, operand.size()-3);
-		for(unsigned int i = 0; i < tempor.size(); i++) {
-			int ascii = (int)tempor[i];
-			tmmp.append(int_to_hex(ascii).substr(3,2));
-		}
-		lines.at(row_num).m_code = tmmp;
-		
+            //Process the character byte directives
+            else{            
+                string tmmp;
+                string tempor = operand.substr(2,operand.size()-3);
+                for(unsigned int i =0; i<tempor.size();i++){
+                    int ascii = (int)tempor[i];
+                    tmmp.append(int_to_hex(ascii).substr(3,2));
+                }
+                lines.at(row_num).m_code = tmmp;
             }
+        }
+        //Input a -- for visual clarity in the listing file
+        else if(string_compare(opcode,"resw")||string_compare(opcode,"resb")){
+            lines.at(row_num).m_code = "--";
         } 
         string orig_operand=operand;
         string parse1,parse2;
         parse_operand(orig_operand,parse1,parse2);
-        int addr_type;       
+        int addr_type; 
+        //Process the different format types      
         switch(op_size){
             case 1:
                 process_format_one(opcode);
@@ -212,6 +221,7 @@ void sicxe_asm::first_pass(){
                 offset = process_format_three_offset(operand);
                 addr_type = check_addr_mode(orig_operand);
                 if(!validate_offset_size(int_to_hex(offset))){
+                    //If base has not been set and the offset is out of range, throw an error
                     if(!base_set){
                         throw error_format("Operation invalid for PC relative and base not set");
                     }
@@ -247,6 +257,7 @@ void sicxe_asm::first_pass(){
                 break;
         
         }
+        //Combines flags with machine code for line
         unsigned int flags=0;
         if(n_bit){
             flags |= 0x0020000;
@@ -267,6 +278,7 @@ void sicxe_asm::first_pass(){
             flags|= 0x0001000;
         } 
         unsigned int machine_code=0;
+        //Only processes the modification if the type was 3 or 4
         if(op_size>2){
             machine_code = hex_to_int(opcode_table.get_machine_code(opcode));
         }
@@ -283,10 +295,14 @@ void sicxe_asm::first_pass(){
                     if(tmp.size()>3)
                         tmp=tmp.substr(tmp.size()-3,3);
                     offset=hex_to_int(tmp);
-                }                    
+                }   
+                //If size 4 adjust to 32 bits                 
                 if(op_size==4){
+                    if(tmp.size()>5)
+                        tmp = tmp.substr(tmp.size()-3,5);
                     offset=hex_to_int("0"+tmp);
                     offset|=0x00000000;
+                    
                 }
                 flags|=offset;
                 if(op_size==3){
@@ -358,7 +374,7 @@ void sicxe_asm::print_file() {
         cout << format_15(format_8(lines.at(i).address));
         cout << format_15(format_8(lines.at(i).label));
         cout << format_15(format_8(lines.at(i).opcode))<<" ";
-        cout << format_15(lines.at(i).operand)<<setw(8)<<" ";
+        cout << format_15(lines.at(i).operand)<<"\t";
         cout << lines.at(i).m_code<<endl;
     }
 }
@@ -383,7 +399,7 @@ void sicxe_asm::write_file() {
             listing << format_15(format_8(lines.at(i).address));
             listing << format_15(format_8(lines.at(i).label));
             listing << format_15(format_8(lines.at(i).opcode))<<" ";
-            listing << format_15(lines.at(i).operand)<<setw(8)<<" ";
+            listing << format_15(lines.at(i).operand)<<"\t";
             listing << lines.at(i).m_code<<endl;
         }
     }
@@ -831,28 +847,6 @@ void sicxe_asm::process_format_one(string opcode){
     lines.at(row_num).m_code = opcode_table.get_machine_code(opcode)+"      ";
 }
 
-/************************************************
-* Determines which offset handler is to be used *
-************************************************/
-// CURRENT ERRORS WITH NEED BASE!!!!!!!!!!!!!!!!!!!!!!
-// target_location needs to be intialized
-// parse_operand needs to be declared or renamed
-/*bool sicxe_asm::need_base(int operand){
-	// get the current address and the address in the opcode
-	// subtract the two and check if they're valid for PC relative        
-	int curr_addr = hex_to_int(lines.at(row_num).address);
-	int operand_addr = hex_to_int(operand);
-	target_location = operand_addr - curr_addr;
-	if(target_location <= 2047 || target_location >= -2048){
-		return false;
-	}
-	//if(base.compare("-1") == 0){
-        if(!base_set){
-		throw error_format("Base has not been set"); 
-	}
-	return true;
-}*/
-
 /****************************************************
  *Verifies that the operands size is within range   *
  ****************************************************/
@@ -863,23 +857,25 @@ bool sicxe_asm::validate_offset_size(string offset) {
         }
         return false;        
     }
+    //Verifies operand is in size 4 limitations for offset values 
     if(op_size == 4) {        
         if(!isdigit(operand[0])){            
-            return (( (-524288) <= hex_to_int(offset))&&(hex_to_int(offset) <= 524287));
+            return (( dec_to_int("-524288") <= hex_to_int(offset))&&(hex_to_int(offset) <= dec_to_int("524287")));
         }
 	else if(is_hex(offset)){
-	    return ((hex_to_int(offset)==0) || (hex_to_int(offset) <= hex_to_int("1048575")));
+	    return ((hex_to_int(offset)==0) || (hex_to_int(offset) <= dec_to_int("1048575")));
         }        
 	else{ 
 	    return false;
         }
     }
-    if(op_size == 3) {
+    //Verifies operand is in size 3 limitations for offset values
+    else if(op_size == 3) {
         if(!isdigit(operand[0])){
 	    return ((dec_to_int("-2048") <= hex_to_int(offset))&&(hex_to_int(offset) <= dec_to_int("2047"))) ;
         }
         else if(is_hex(offset)){
-	    return ((hex_to_int(offset)==0) || (hex_to_int(offset) <= hex_to_int("4095")));
+	    return ((hex_to_int(offset)==0) || (hex_to_int(offset) <= dec_to_int("4095")));
         }
 	else{
 	    return false;
@@ -961,7 +957,6 @@ int sicxe_asm::process_format_three_offset(string operand){
 int sicxe_asm::process_format_four_offset(string operand){
     string op1,op2;
     int destination=0;
-    //int source = hex_to_int(lines.at(row_num).address);
     int offset =0;
     int add_mode = check_addr_mode(operand);
     parse_operand(operand,op1,op2);
@@ -1011,6 +1006,10 @@ int sicxe_asm::process_format_four_offset(string operand){
         i_bit = true;
         b_bit = false;
         p_bit = false;
+        //handles if number given 
+        if(is_num(operand)){
+            return dec_to_int(op1);
+        }
         return hex_to_int(op1);
     }
     else{

@@ -24,6 +24,7 @@
 
 
 #define WORD_SIZE 3
+//Hex values of flags
 #define n_hex 0x020000
 #define i_hex 0x010000
 #define x_hex 0x008000
@@ -84,6 +85,7 @@ class sicxe_asm{
         bool p_bit;
         bool e_bit;
         
+        //Base Check Flag
         bool base_set;
         
 	stringstream ss_error;
@@ -385,21 +387,31 @@ class sicxe_asm{
 	****************************************************************************/
         void process_format_one(string);
         
-        /****************************************************************************
-	*Method: need_base(string)                                                  *
-	*Parameters: Operand in question                                            *
-	*Determines the offset needed for an instruction and determines which offset*
-	*	mode to use.                                                        *
-	*Returns: True if base mode is needed                                       *
-	*	  False if PC relative is needed                                    *
-	*Error handling: None                                                       *
-	*****************************************************************************/
-        bool need_base(string);
-	
+        /***************************************************************************
+	*Method: validate_offset_size(string)          			           *
+	*Parameters: string offset                                                 *
+	*Purpose: Checks if given offset is within the bounds of the format size   *
+	*Returns: True if it validates, false otherwise       			   *
+	*Error handling: None                                    		   *
+	****************************************************************************/	
 	bool validate_offset_size(string);
         
-        int process_format_three_offset(string);
+        /***************************************************************************
+	*Method: process_format_three_offset(string)  			           *
+	*Parameters: string operand                                                *
+	*Purpose: Calculates operand offset for given format 3 instruction         *
+	*Returns: Int value of offset                         			   *
+	*Error handling: Throws if operand is formatted incorrectly or invalid     *
+	****************************************************************************/
+        int process_format_three_offset(string);        
         
+        /***************************************************************************
+	*Method: process_format_four_offset(string)  			           *
+	*Parameters: string operand                                                *
+	*Purpose: Calculates operand offset for given format 4 instruction         *
+	*Returns: Int value of operand based on addressing mode type     	   *
+	*Error handling: Throws if operand is formatted incorrectly or invalid     *
+	****************************************************************************/
         int process_format_four_offset(string);
 		
 };

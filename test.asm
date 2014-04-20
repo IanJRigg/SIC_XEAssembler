@@ -23,10 +23,20 @@ test11 +lda @test1
 test12 lda #test1
 test125 lda #badone
 test13 +lda #test1
+test135 lda #-2048
+test136 lda #2047
+test137 +lda #-524288
+test138 +lda #524287
+test139 +lda 1048575
+test140 lda 4095
  +jsub test
  +jsub testt
+  BYTE c'Test ing'
+  BYTE x'1234567890ABCDEF'
+  WORD 10
+  WORD 100
 
-.bad cases next
+.bad cases next THESE SHOULD ALL FAIL!!!
 
 .test14 lda #100,x
 .test15 lda @100,x
@@ -40,7 +50,15 @@ test13 +lda #test1
 .test23 lda @test1,x
 .test24 lda #-2049
 .test25 lda #2048
+.test26 +lda #-524289
+.test27 +lda #524288
+.test28 lda 4096 .<---------Not currently handled properly!!
+.test29 lda -1
+.test30 +lda 1048576
+.test31 +lda -1
 
 alpha    resw 3000
 badone  word 1
+.  BYTE x'G'
+.  WORD A
     end source1
