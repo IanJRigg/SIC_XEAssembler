@@ -18,7 +18,7 @@ first   NORM
         ldt     #alpha
         +ldt     #foo
         lda     @alpha
-        lda     foo
+        lda     @foo
         addr    S,T
         shiftr  T,2
         shiftl  S,1
@@ -36,7 +36,7 @@ addl    lda     alpha,x   .loop control
         compr   x,t
         +jlt     addl
         jlt     addl
-        rsub  
+        rsub    
         
 . storage allocation section        
 alpha   resw    100

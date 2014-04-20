@@ -24,12 +24,13 @@
 
 
 #define WORD_SIZE 3
-#define lower_op_four_size -524288
-#define upper_op_four_size 524287
-#define lower_op_three_size -2048
-#define upper_op_three_size 2047
-#define constant_max_four 1048575
-#define constant_max_three 4095
+#define n_hex 0x020000
+#define i_hex 0x010000
+#define x_hex 0x008000
+#define b_hex 0x004000
+#define p_hex 0x002000
+#define e_hex 0x001000
+
 class sicxe_asm{
     public: 
         sicxe_asm(string);
@@ -48,16 +49,12 @@ class sicxe_asm{
 		string opcode;
 		string operand;
                 string m_code;
-                int op_size;
-                string op_hex;
 		prog_listing():  line_number(" "),
 				 address(" "),
 				 label(" "),
 				 opcode(" "),
 				 operand(" "),
-                                 m_code(" ")/*,
-                                 op_size(0),
-                                 op_hex(" ")*/{}
+                                 m_code(" "){}
 	};
         string lis_filename;
         string in_filename;
@@ -67,7 +64,6 @@ class sicxe_asm{
         string operand;
         string label;
         string m_code;
-        string op_hex;
         string base;
         
         //Registers
@@ -76,6 +72,9 @@ class sicxe_asm{
         string x_reg;
         string s_reg;
         string t_reg;
+        string l_reg;
+        string pc_reg;
+        string sw_reg;
         
         //Flags
         bool n_bit;
@@ -397,7 +396,11 @@ class sicxe_asm{
 	*****************************************************************************/
         bool need_base(string);
 	
-	bool validate_operand_size(string);
+	bool validate_offset_size(string);
+        
+        int process_format_three_offset(string);
+        
+        int process_format_four_offset(string);
 		
 };
 #endif

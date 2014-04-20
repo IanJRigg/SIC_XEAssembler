@@ -68,6 +68,7 @@ void sicxe_asm::first_pass(){
          label = " ";
          opcode = " ";
          operand = " ";
+         m_code= " ";
          store_line();
          try{
          opcode = parser.get_token(++row_num, 1);
@@ -120,10 +121,8 @@ void sicxe_asm::first_pass(){
         }
         int opcode_size =0;
         string errorflag="";
-        string check_opcode;
         try{
             opcode_size = opcode_table.get_instruction_size(opcode);
-            check_opcode = opcode_table.get_machine_code(opcode);
         } catch(opcode_error_exception ex){
             errorflag=ex.getMessage();            
         }
@@ -150,6 +149,9 @@ void sicxe_asm::first_pass(){
     x_reg = "1";
     s_reg = "4";
     t_reg = "5";
+    l_reg = "2";
+    sw_reg ="9";
+    pc_reg ="8";
     int vector_size = lines.size();
     while(row_num < vector_size){
         n_bit = false;
@@ -162,6 +164,7 @@ void sicxe_asm::first_pass(){
         address = lines.at(row_num).address;
         opcode = lines.at(row_num).opcode;
         operand = lines.at(row_num).operand;
+        int offset=0;
         try{
         /*Sets class variable op_size*/
         if(!string_compare(opcode, " ") && !is_process_directive(opcode)){
@@ -174,6 +177,21 @@ void sicxe_asm::first_pass(){
         catch(opcode_error_exception op_err){
             throw error_format(op_err.getMessage());
         }
+        if(string_compare(opcode,"word")){
+            lines.at(row_num).m_code = "0"+int_to_hex(dec_to_int(operand));
+        }        
+        if(string_compare(opcode,"byte")){
+            if(string_compare(operand.substr(0,1),"x")){
+                lines.at(row_num).m_code = operand.substr(2,operand.size()-3);
+            }
+            else{            
+                //TODO HANDLE FOR c'XXX' case!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+        } 
+        string orig_operand=operand;
+        string parse1,parse2;
+        parse_operand(orig_operand,parse1,parse2);
+        int addr_type;       
         switch(op_size){
             case 1:
                 process_format_one(opcode);
@@ -184,40 +202,97 @@ void sicxe_asm::first_pass(){
                 }
                 break;
             case 3:
-            case 4:
+                offset = process_format_three_offset(operand);
+                addr_type = check_addr_mode(orig_operand);
+                if(!validate_offset_size(int_to_hex(offset))){
+                    if(!base_set){
+                        throw error_format("Operation invalid for PC relative and base not set");
+                    }
+                    b_bit = true;
+                    if(addr_type>0){
+                        orig_operand = orig_operand.substr(1,orig_operand.size());
+                    }                    
+                    process_forward_ref(base);
+                    process_forward_ref(orig_operand);
+                    offset =  hex_to_int(orig_operand)- hex_to_int(base);
+                }
+                else{
+                    p_bit = true;
+                }
                 operand = validate_tf_operand(operand);
-                process_forward_ref(operand);
-                //THIS NEEDS TO HANDLE CONSTANTS FOR FORMAT 4
-                if(op_size ==4){
-                    e_bit = true;
+                //Handle some special cases for format 3                
+                if((addr_type ==0 && !symbol_table.in_symtab(parse1))||
+                    (is_hex(parse1)&&string_compare(parse2,"x"))||
+                    ((parse1[0]=='@' || parse1[0]=='#')&&!symbol_table.in_symtab(parse1.substr(1,parse1.size())))){
+                    b_bit = false;
+                    p_bit = false;
                 }
-                else{                    
-                    if(need_base(operand)){
-                        b_bit = true;
-                    }
-                    else{
-                        p_bit = true;
-                    }
+                break;
+            case 4:                
+                offset = process_format_four_offset(operand);
+                if(!validate_offset_size(int_to_hex(offset))){
+                    cout<<"Invalid size for format 4"<<endl;
                 }
+                operand = validate_tf_operand(operand);
+                e_bit = true;                                              
                 break;
             default:
                 break;
         
         }
-        cout<<address<<"-"<<opcode<<"-"<<operand;
-        cout<<"::flags:"<<n_bit<<i_bit<<x_bit<<b_bit<<p_bit<<e_bit<<endl; 
+        unsigned int flags=0;
+        if(n_bit){
+            flags |= 0x0020000;
+        } 
+        if(i_bit){
+            flags |= 0x0010000;
+        }
+        if(x_bit){
+            flags |= 0x0008000;
+        }
+        if(b_bit){
+            flags |= 0x0004000;
+        }
+        if(p_bit){
+            flags|= 0x0002000;
+        }
+        if(e_bit){
+            flags|= 0x0001000;
+        } 
+        unsigned int machine_code=0;
+        if(op_size>2){
+            machine_code = hex_to_int(opcode_table.get_machine_code(opcode));
+        }
+        machine_code<<=16;
+        if(op_size==4){
+            machine_code<<=8;
+            flags<<=8;
+        }               
+        flags|=machine_code;        
+        string tmp;
+        if(flags!=0){            
+                tmp = int_to_hex(offset);
+                if(op_size==3){
+                    if(tmp.size()>3)
+                        tmp=tmp.substr(tmp.size()-3,3);
+                    offset=hex_to_int(tmp);
+                }                    
+                if(op_size==4){
+                    offset=hex_to_int("0"+tmp);
+                    offset|=0x00000000;
+                }
+                flags|=offset;
+                if(op_size==3){
+                    stream<<setw(6)<<setfill('0')<<hex<<flags;
+                }
+                else if(op_size==4){
+                    stream<<setw(8)<<setfill('0')<<hex<<flags;
+                }    
+                lines.at(row_num).m_code=to_uppercase(stream.str());
+                stream.str("");
+        } 
         row_num++;
-    }
-    /*TODO: Get opcode and size, read and validate the operand field
-     *operand for size 3/4 =
-        -Alpha
-        -#Alpha
-        -@Alpha
-        -#2  Constant value
-        - Alpha, x - for LDX command
-        -Blank  - Some functions take no operands
-    Calculate and set nixbpe flags
-    */
+    }    
     print_file();
     write_file();
     
@@ -238,7 +313,7 @@ string sicxe_asm::int_to_hex(int num){
  *If parameter is invalid for conversion it throws an error*
  ***********************************************************/
 int sicxe_asm::dec_to_int(string s){
-    if(!is_num(s)){
+    if(!is_num(s)&& s[0]!='-'){
         throw error_format("Invalid decimal conversion candidate::"+s);
     }
     int value;    
@@ -276,8 +351,8 @@ void sicxe_asm::print_file() {
         cout << format_15(format_8(lines.at(i).address));
         cout << format_15(format_8(lines.at(i).label));
         cout << format_15(format_8(lines.at(i).opcode))<<" ";
-        cout << format_15(lines.at(i).operand)<<setw(10);
-        cout<<lines.at(i).m_code<<endl;
+        cout << format_15(lines.at(i).operand)<<setw(8)<<" ";
+        cout << lines.at(i).m_code<<endl;
     }
 }
 
@@ -301,7 +376,7 @@ void sicxe_asm::write_file() {
             listing << format_15(format_8(lines.at(i).address));
             listing << format_15(format_8(lines.at(i).label));
             listing << format_15(format_8(lines.at(i).opcode))<<" ";
-            listing << format_15(lines.at(i).operand)<<setw(10);
+            listing << format_15(lines.at(i).operand)<<setw(8)<<" ";
             listing << lines.at(i).m_code<<endl;
         }
     }
@@ -492,7 +567,7 @@ int sicxe_asm::process_directives(){
  *********************************/
 void sicxe_asm::process_base(){
     if(string_compare(opcode,"BASE")){
-        base=operand;
+        base=operand;        
         base_set = true;
     }
     else if(string_compare(opcode,"NOBASE")){
@@ -505,14 +580,13 @@ void sicxe_asm::process_base(){
  *Handes EQU directive commands *
  ********************************/
 void sicxe_asm::process_equ(){
-        while(symbol_table.in_symtab(operand)){
-            operand = symbol_table.get_value(operand);
-        }
-         try{        
-            if(is_num(operand)||operand[0]=='$'){
+        try{       
+            if((is_num(operand)||operand[0]=='$')&& !symbol_table.in_symtab(operand)){
+                operand = int_to_hex(dec_to_int(operand));
                 symbol_table.insert_symbol(label, operand,"A"); 
             }
-            else{ 
+            else{                         
+                //process_forward_ref(operand);
                 symbol_table.insert_symbol(label,operand,"R");
             } 
         }catch(symtab_exception symex){
@@ -588,43 +662,39 @@ int sicxe_asm::check_addr_mode(string operand){
 }
 
 /***********************************************************
-*Checks and confirms values in the operand field are valid.*  
+*Checks and confirms values in the operand field are valid.*
+*Properly handles all cases including greyed out           *  
  **********************************************************/
 string sicxe_asm::validate_tf_operand(string operand) {
-    string op1, op2;
+    string op1;
+    string op2=" ";
     int tmp = check_addr_mode(operand);
     parse_operand(operand, op1, op2);
     //Catches if operand was only a # or @ symbol
     if(string_compare(op1,"#")||string_compare(op1,"@")){
             throw error_format("Invalid Operand::"+op1);
     }
-    if(tmp == 2 || tmp == 1) {
-        switch(tmp){
-            case 1:
-                i_bit = true;
-                break;
-            default:
-                n_bit = true;           
-        }
-        if(symbol_table.in_symtab(op1.substr(1,op1.size())))
-            return op1.substr(1,op1.size());
-        else if(isdigit(op1[1]))
-            return op1.substr(1,op1.size());
+    if((tmp == 2 || tmp == 1)&& string_compare(op2," ")) {
+        op1 = op1.substr(1,op1.size());
+        process_forward_ref(op1);
+        if((isdigit(op1[0])||string_compare(op1.substr(0,1),"-") ))
+            return op1;
+        else
+            throw error_format("Invalid operand declared::\'"+op1+"\'");        
     }
     else{
         process_forward_ref(op1);
-        /*If operand is out of appropriate size range for 3 or 4 it throws an error*/
-        if(!validate_operand_size(op1)){
-            throw error_format("Operand value is invalid::\'"+op1+"\'");
+        if(!isdigit(op1[0]) && !string_compare(opcode,"rsub")){
+            throw error_format("Invalid operand declared::\'"+op1+"\'");
         }
-        n_bit = true;
-        i_bit = true;
-        if(string_compare(op2,"x")){
+        if(string_compare(op2,"x")){                        
             x_bit = true;
         }
-        return operand;
+        else if(!string_compare(op2, " ")){
+            throw error_format("Invalid operand declared::\'"+operand+"\'");
+        }
+        return op1;
     }    
-    return op1;
 }
 
 /*************************************************
@@ -680,10 +750,10 @@ bool sicxe_asm::validate_registers(string operand){
             if(tmp<0){
                 throw error_format("Invalid shift value in operand::"+operand);
             }
-            stream<<r1<<tmp;
+            stream<<op_machine_code<<r1<<tmp;
             r1 = stream.str();
             stream.str("");
-            lines.at(row_num).m_code = op_machine_code+r1+"    ";
+            lines.at(row_num).m_code = r1;//op_machine_code+r1+"    ";
         }        
     }
     
@@ -697,7 +767,7 @@ bool sicxe_asm::validate_registers(string operand){
 void sicxe_asm::parse_operand(string operand, string &op1, string &op2){
     size_t found = operand.find(",");
     op1 = operand.substr(0, found);
-    if(found != std::string::npos){
+    if(found != std::string::npos){        
         op1 = operand.substr(0, found);
         op2 = operand.substr(found+1, operand.size());
     }
@@ -731,6 +801,15 @@ string sicxe_asm::check_registers(string reg){
     else if(string_compare(reg,"t")){
         return t_reg;
     }
+    else if(string_compare(reg,"l")){
+        return l_reg;
+    }
+    else if(string_compare(reg,"sw")){
+        return sw_reg;
+    }
+    else if(string_compare(reg,"pc")){
+        return pc_reg;
+    }
     else
         return "-1";
 }
@@ -751,7 +830,7 @@ void sicxe_asm::process_format_one(string opcode){
 // CURRENT ERRORS WITH NEED BASE!!!!!!!!!!!!!!!!!!!!!!
 // target_location needs to be intialized
 // parse_operand needs to be declared or renamed
-bool sicxe_asm::need_base(string operand){
+/*bool sicxe_asm::need_base(int operand){
 	// get the current address and the address in the opcode
 	// subtract the two and check if they're valid for PC relative        
 	int curr_addr = hex_to_int(lines.at(row_num).address);
@@ -760,29 +839,29 @@ bool sicxe_asm::need_base(string operand){
 	if(target_location <= 2047 || target_location >= -2048){
 		return false;
 	}
-	if(base.compare("-1") == 0){
-		throw error_format(""); // NEED THE PROPER CALL HERE!!!!!
+	//if(base.compare("-1") == 0){
+        if(!base_set){
+		throw error_format("Base has not been set"); 
 	}
 	return true;
-}
+}*/
 
 /****************************************************
  *Verifies that the operands size is within range   *
  ****************************************************/
-bool sicxe_asm::validate_operand_size(string operand) {
+bool sicxe_asm::validate_offset_size(string offset) {
     if(string_compare(opcode,"rsub")){
         if(operand.compare(" ")==0){
             return true;
         }
         return false;        
     }
-    int tmp = string_to_int(operand.substr(1,operand.size()));
     if(op_size == 4) {        
         if(!isdigit(operand[0])){            
-            return ((lower_op_four_size <= tmp)&&(tmp <= upper_op_four_size));
+            return (( (-524288) <= hex_to_int(offset))&&(hex_to_int(offset) <= 524287));
         }
-	else if(isdigit(operand[0]) && is_hex(operand)){
-	    return ((hex_to_int(operand)==0) || (hex_to_int(operand) <= constant_max_four));
+	else if(is_hex(offset)){
+	    return ((hex_to_int(offset)==0) || (hex_to_int(offset) <= hex_to_int("1048575")));
         }        
 	else{ 
 	    return false;
@@ -790,17 +869,147 @@ bool sicxe_asm::validate_operand_size(string operand) {
     }
     if(op_size == 3) {
         if(!isdigit(operand[0])){
-	    return ((lower_op_three_size <= tmp)&&(tmp <= upper_op_three_size)) ;
+	    return ((dec_to_int("-2048") <= hex_to_int(offset))&&(hex_to_int(offset) <= dec_to_int("2047"))) ;
         }
-        else if(isdigit(operand[0]) && is_hex(operand)){
-	    return ((hex_to_int(operand)==0) || (hex_to_int(operand) <= constant_max_three));
+        else if(is_hex(offset)){
+	    return ((hex_to_int(offset)==0) || (hex_to_int(offset) <= hex_to_int("4095")));
         }
 	else{
 	    return false;
         }
     }
     return false;
-}   
+}
+
+/************************************************
+ *Processes the offset for format 3 instructions*
+ *returns an int value for the offset           *
+ ************************************************/
+int sicxe_asm::process_format_three_offset(string operand){
+    string op1,op2;
+    int destination=0;
+    int source = hex_to_int(lines.at(row_num).address);
+    int offset =0;
+    int add_mode = check_addr_mode(operand);
+    parse_operand(operand,op1,op2);
+    bool op2_is_blank = string_compare(op2,"");
+    string all_but_first = op1.substr(1,op1.size());
+    process_forward_ref(op1);
+    process_forward_ref(all_but_first);
+    if(string_compare(opcode,"rsub")){
+        if(!string_compare(operand," ")){
+            throw error_format("Invalid operand for RSUB::"+operand);
+        }
+        n_bit=true;
+        i_bit = true;
+        return 0;
+    }    
+    if(string_compare(op2,"x")){
+        if(is_hex(op1)){
+            x_bit = true;
+            n_bit = true;
+            i_bit = true;
+            destination= hex_to_int(op1);
+            offset = destination - (source +3);
+            return offset;
+        }
+        throw error_format("Operand is not of the form alpha,x or C,x::"+operand);
+    }    
+    if((add_mode!=0)&& op2_is_blank){
+        if(add_mode ==2 && is_hex(all_but_first)){
+            n_bit = true;
+            destination = hex_to_int(all_but_first);            
+        }
+        else if(add_mode ==1 && (all_but_first[0]=='-' || is_num(operand.substr(1,operand.size())))){
+            i_bit =true;
+            destination = dec_to_int(all_but_first);
+            return destination;
+        }
+        else if(add_mode ==1 && (is_hex(all_but_first))){
+            destination = hex_to_int(all_but_first);
+            i_bit = true;
+        }
+        else{
+            throw error_format("Operand is invalid::"+operand);
+        }
+    }
+    else if(is_hex(op1)){
+        n_bit = true;
+        i_bit = true;
+        b_bit = false;
+        p_bit = false;
+        destination = hex_to_int(op1);
+    }
+    else{
+        throw error_format("Invalid operand::"+operand);
+    }
+    offset = destination - (source +3);
+    return offset;
+}
+
+/************************************************
+ *Processes the offset for format 4 instructions*
+ *returns an int value for the offset           *
+ ************************************************/
+int sicxe_asm::process_format_four_offset(string operand){
+    string op1,op2;
+    int destination=0;
+    //int source = hex_to_int(lines.at(row_num).address);
+    int offset =0;
+    int add_mode = check_addr_mode(operand);
+    parse_operand(operand,op1,op2);
+    bool op2_is_blank = string_compare(op2,"");
+    string all_but_first = op1.substr(1,op1.size());
+    process_forward_ref(op1);
+    process_forward_ref(all_but_first);
+    if(string_compare(opcode,"rsub")){
+        if(!string_compare(operand," ")){
+            throw error_format("Invalid operand for RSUB::"+operand);
+        }
+        n_bit=true;
+        i_bit = true;
+        return 0;
+    }    
+    if(string_compare(op2,"x")){
+        if(is_hex(op1)){
+            x_bit = true;
+            n_bit = true;
+            i_bit = true;
+            destination= hex_to_int(op1);
+            offset = destination;
+            return offset;
+        }
+        throw error_format("Operand is not of the form alpha,x or C,x::"+operand);
+    }    
+    if((add_mode!=0)&& op2_is_blank){
+        if(add_mode ==2 && is_hex(all_but_first)){
+            n_bit = true;
+            return hex_to_int(all_but_first);            
+        }
+        else if(add_mode ==1 && (all_but_first[0]=='-' || is_num(operand.substr(1,operand.size())))){
+            i_bit =true;
+            destination = dec_to_int(all_but_first);
+            return destination;
+        }
+        else if(add_mode ==1 && (is_hex(all_but_first))){            
+            i_bit = true;
+            return hex_to_int(all_but_first);
+        }
+        else{
+            throw error_format("Operand is invalid::"+operand);
+        }
+    }
+    else if(is_hex(op1)){
+        n_bit = true;
+        i_bit = true;
+        b_bit = false;
+        p_bit = false;
+        return hex_to_int(op1);
+    }
+    else{
+        throw error_format("Invalid operand::"+operand);
+    }
+}
  
 /**************************
  * Main Function          *
