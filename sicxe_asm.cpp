@@ -220,6 +220,10 @@ void sicxe_asm::first_pass(){
             case 3:
                 offset = process_format_three_offset(operand);
                 addr_type = check_addr_mode(orig_operand);
+		if(isdigit(parse1[0])){
+			if(addr_type == 0 && dec_to_int(parse1) > dec_to_int("4095"))
+				throw error_format("Operand address out of range");
+		}
                 if(!validate_offset_size(int_to_hex(offset))){
                     //If base has not been set and the offset is out of range, throw an error
                     if(!base_set){
@@ -247,6 +251,10 @@ void sicxe_asm::first_pass(){
                 break;
             case 4:                
                 offset = process_format_four_offset(operand);
+		if(isdigit(parse1[0])){
+			if(addr_type == 0 && dec_to_int(parse1) > dec_to_int("1048575"))
+				throw error_format("Operand address out of range");
+		}
                 if(!validate_offset_size(int_to_hex(offset))){
                     cout<<"Invalid size for format 4"<<endl;
                 }
