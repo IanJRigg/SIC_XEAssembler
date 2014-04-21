@@ -1,8 +1,9 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    file_parser.cc
+    prog4: file_parser.cc
     CS530, Spring 2014
+    Team Florida
 */
 
 #include "file_parser.h"
