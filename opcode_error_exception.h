@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    Prog2: opcode_error_exception.h
+    Prog4: opcode_error_exception.h
     Exception class for opcodetab
     CS530 Spring 2014
     Team Florida

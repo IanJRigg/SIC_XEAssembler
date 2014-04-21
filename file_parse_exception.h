@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    Prog1: file_parse_exception.h
+    Prog4: file_parse_exception.h
     Exception class for file_parser
     CS530 Spring 2014
     Team Florida

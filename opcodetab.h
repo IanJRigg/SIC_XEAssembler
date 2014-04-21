@@ -1,7 +1,7 @@
 /*
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    Prog2: opcodetab.h
+    Prog4: opcodetab.h
     CS530, Spring 2014
     Team Florida
 */

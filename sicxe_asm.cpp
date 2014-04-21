@@ -1,7 +1,7 @@
 /*  
     Ian Rigg, Richard Valles, Chris Andaya, Arron Mccarter
     masc1258
-    prog3 : sicxe_asm.cpp
+    prog4 : sicxe_asm.cpp
     CS530, Spring 2014
     Team Florida
 */
@@ -206,7 +206,7 @@ void sicxe_asm::first_pass(){
         string orig_operand=operand;
         string parse1,parse2;
         parse_operand(orig_operand,parse1,parse2);
-        int addr_type; 
+        int addr_type=0; 
         //Process the different format types      
         switch(op_size){
             case 1:
