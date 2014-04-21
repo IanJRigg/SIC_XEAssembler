@@ -3,6 +3,7 @@
     masc1258
     prog4: file_parser.cc
     CS530, Spring 2014
+    Team Florida
 */
 
 #include "file_parser.h"
