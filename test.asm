@@ -52,9 +52,9 @@ test140 lda 4095
 .test25 lda #2048
 .test26 +lda #-524289
 .test27 +lda #524288
-.test28 lda 4096 .<---------Not currently handled properly!!
+.test28 lda 4096 
 .test29 lda -1
-.test30 +lda 1048576
+.test30 +lda 1048576 
 .test31 +lda -1
 
 alpha    resw 3000
@@ -62,3 +62,4 @@ badone  word 1
 .  BYTE x'G'
 .  WORD A
     end source1
+
